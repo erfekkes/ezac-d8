@@ -185,10 +185,13 @@ class EzacRoosterController extends ControllerBase {
 
   /**
    * Render a list of entries in the database.
+   *
    * @param string $datum YYYY-MM-DD:YYYY-MM-DD or 'jaar'
+   * @param bool|null $own false show only days with own entries
+   *
    * @return array
    */
-  public function overzichtDatum($datum) {
+  public function overzichtDatum(?string $datum, ?bool $own = FALSE) {
     $messenger = Drupal::messenger();
 
     // read settings
@@ -257,13 +260,16 @@ class EzacRoosterController extends ControllerBase {
     }
 
     // select all diensten dates for selected year
-    // @todo ombouwen voor datum range met checkDate
     $condition = [
       'datum' => [
         'value' => [$datumStart, $datumEnd],
         'operator' => 'BETWEEN'
       ],
     ];
+    if ($own and ($zelf != '')) {
+      // select only days with own entries
+      $condition['naam'] = $zelf;
+    }
     $from = null;
     $range = null;
     $field = 'datum';
@@ -362,27 +368,6 @@ class EzacRoosterController extends ControllerBase {
 
     return $content;
   } // overzichtJaar
-
-  private function datumCallback($select) {
-    //@todo does not work in a controller
-    switch ($select) {
-      case 'A':
-        // select alle dagen
-        break;
-      case 'E':
-        // select eigen diensten
-        break;
-      case 'V':
-        // select vanaf vandaag
-        break;
-    }
-    // return $content['table']
-    $build[] = array(
-      '#type' => 'markup',
-      '#markup' => '<p>Demo text content</p>',
-    );
-    return new Response(render($build));
-  }// datumCallback
 
     /**
      * Maak exportbestand uit Leden tabel

@@ -1,24 +1,38 @@
-ezac_rooster.overzicht:
+ezac_rooster_overzicht:
   title: 'Overzicht'
   route_name: ezac_rooster_overzicht_datum
+  route_parameters:
+    datum: ''
+    own: 0
   base_route: ezac_rooster_overzicht_datum
   weight: 01
 
-ezac_rooster.jaar:
+ezac_rooster_jaar:
   title: 'Hele jaar'
   route_name: ezac_rooster_overzicht_datum
-  route_parameters: { datum: 'jaar' }
+  route_parameters:
+    datum: 'jaar'
+    own: '0'
   base_route: ezac_rooster_overzicht_datum
   weight: 02
 
-ezac_rooster.invoer:
-  title: 'Rooster invoer'
-  route_name: ezac_rooster_table
+ezac_rooster_own:
+  title: 'Eigen diensten'
+  route_name: ezac_rooster_overzicht_datum
+  route_parameters:
+    datum: 'jaar'
+    own: '1'
   base_route: ezac_rooster_overzicht_datum
   weight: 03
 
-ezac_rooster.administratie:
+ezac_rooster_invoer:
+  title: 'Rooster invoer'
+  route_name: ezac_rooster_table
+  base_route: ezac_rooster_overzicht_datum
+  weight: 04
+
+ezac_rooster_administratie:
   title: 'Rooster administratie'
   route_name: ezac_rooster
   base_route: ezac_rooster_overzicht_datum
-  weight: 04
+  weight: 05
