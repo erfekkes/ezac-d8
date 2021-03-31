@@ -140,17 +140,13 @@ class EzacReserveringenForm extends FormBase
         ],
       ];
       $reserveringenIndex = EzacReservering::index($condition);
-      $reserveringen = [];
-      foreach($reserveringenIndex as $id) {
-        $reserveringen[$id] = new EzacReservering($id);
-      }
-
       $res_tabel = [];
       // maak tabel met per dag | periode | reservering gegevens
-      foreach ($reserveringen as $id => $res) {
+      foreach ($reserveringenIndex as $id) {
+        $res = new EzacReservering($id);
         $res_tabel[$res->datum][$res->periode][$res->id] = [
           'soort' => $res->soort,
-          'naam' => sprintf('%s %s %s', $res->voornaam, $res->voorvoeg, $res->achternaam),
+          'leden_id' => $res->leden_id,
           'doel' => $res->doel,
           'reserve' =>$res->reserve
         ];
