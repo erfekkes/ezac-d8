@@ -265,11 +265,11 @@ class EzacPassagiersBoekingForm extends FormBase {
     $body .= "<br>";
     if ($status == $parameters['reservering_optie']) {
       $body .= "<br>Deze reservering dient <strong>voor $eindtijd</strong> te worden bevestigd, anders vervalt deze.";
-      $body .= "<br>Bevestig via <a href=www.ezac.nl$url_bevestiging>DEZE LINK</a>";
+      $body .= "<br>Bevestig via <a href=https://www.ezac.nl$url_bevestiging>DEZE LINK</a>";
       $body .= "<br>";
     }
     $body .= "<br>Mocht het niet mogelijk zijn hiervan gebruik te maken, dan kan deze reservering";
-    $body .= "<br>via <a href=www.ezac.nl$url_verwijderen>DEZE LINK</a> worden geannuleerd ";
+    $body .= "<br>via <a href=https://www.ezac.nl$url_verwijderen>DEZE LINK</a> worden geannuleerd ";
     $body .= "<br>";
     $body .= "<br>Je hebt aangegeven $mail_keuze op de EZAC mailing list te willen";
     $body .= "<br>";

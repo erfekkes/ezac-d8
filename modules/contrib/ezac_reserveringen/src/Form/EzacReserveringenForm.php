@@ -404,7 +404,7 @@ class EzacReserveringenForm extends FormBase
       $body .= "<br>De reservering is voor $show_datum in de $periode periode";
       $body .= "<br>";
       $body .= "<br>Mocht het niet mogelijk zijn hiervan gebruik te maken, dan kan deze reservering";
-      $body .= "<br>via <a href=www.ezac.nl$urlAnnuleringString>DEZE LINK</a> worden geannuleerd ";
+      $body .= "<br>via <a href=https://www.ezac.nl$urlAnnuleringString>DEZE LINK</a> worden geannuleerd ";
       $body .= "<br>";
       $body .= "<br>Met vriendelijke groet,";
       $body .= "<br>Eerste Zeeuws Vlaamse Aero Club";
