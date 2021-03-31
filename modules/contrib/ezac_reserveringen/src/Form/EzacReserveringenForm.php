@@ -391,11 +391,11 @@ class EzacReserveringenForm extends FormBase
 
       /* additional header pieces for errors, From cc's, bcc's, etc */
       $headers = [
-        'From' => "webmaster@ezac.nl",
+        //'From' => "webmaster@ezac.nl",
         'Bcc' => "webmaster@ezac.nl",
-        'X-Mailer' => "PHP",
+        //'X-Mailer' => "PHP",
         'Content-Type' => "text/html; charset=iso-8859-1",
-        'Return-Path' => "webmaster@ezac.nl",
+        //'Return-Path' => "webmaster@ezac.nl",
       ];
 
       $body  = '<html lang="nl"><body>';
@@ -404,7 +404,7 @@ class EzacReserveringenForm extends FormBase
       $body .= "<br>De reservering is voor $show_datum in de $periode periode";
       $body .= "<br>";
       $body .= "<br>Mocht het niet mogelijk zijn hiervan gebruik te maken, dan kan deze reservering";
-      $body .= "<br>via <a href=$urlAnnuleringString>DEZE LINK</a> worden geannuleerd ";
+      $body .= "<br>via <a href=www.ezac.nl$urlAnnuleringString>DEZE LINK</a> worden geannuleerd ";
       $body .= "<br>";
       $body .= "<br>Met vriendelijke groet,";
       $body .= "<br>Eerste Zeeuws Vlaamse Aero Club";

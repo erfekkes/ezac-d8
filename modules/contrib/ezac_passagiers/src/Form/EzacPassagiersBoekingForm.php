@@ -265,15 +265,15 @@ class EzacPassagiersBoekingForm extends FormBase {
     $body .= "<br>";
     if ($status == $parameters['reservering_optie']) {
       $body .= "<br>Deze reservering dient <strong>voor $eindtijd</strong> te worden bevestigd, anders vervalt deze.";
-      $body .= "<br>Bevestig via <a href=$url_bevestiging>DEZE LINK</a>";
+      $body .= "<br>Bevestig via <a href=www.ezac.nl$url_bevestiging>DEZE LINK</a>";
       $body .= "<br>";
     }
     $body .= "<br>Mocht het niet mogelijk zijn hiervan gebruik te maken, dan kan deze reservering";
-    $body .= "<br>via <a href=$url_verwijderen>DEZE LINK</a> worden geannuleerd ";
+    $body .= "<br>via <a href=www.ezac.nl$url_verwijderen>DEZE LINK</a> worden geannuleerd ";
     $body .= "<br>";
     $body .= "<br>Je hebt aangegeven $mail_keuze op de EZAC mailing list te willen";
     $body .= "<br>";
-    $body .= "<br>Voor verdere contact gegevens: zie de <a href=http://www.ezac.nl>EZAC website</a>";
+    $body .= "<br>Voor verdere contact gegevens: zie de <a href=https://www.ezac.nl>EZAC website</a>";
     $body .= "<br>";
     $body .= "<br>Met vriendelijke groet,";
     $body .= "<br>Eerste Zeeuws Vlaamse Aero Club";
@@ -281,11 +281,11 @@ class EzacPassagiersBoekingForm extends FormBase {
 
     //   Mailen van bevestiging
     $headers = [
-      'From' => "webmaster@ezac.nl",
+      //'From' => "webmaster@ezac.nl",
       'Bcc' => "webmaster@ezac.nl",
-      'X-Mailer' => "PHP",
+      //'X-Mailer' => "PHP",
       'Content-Type' => "text/html; charset=iso-8859-1",
-      'Return-Path' => "webmaster@ezac.nl",
+      //'Return-Path' => "webmaster@ezac.nl",
     ];
     $mailed = mail($email, $subject, $body, $headers);
 

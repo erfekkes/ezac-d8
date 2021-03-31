@@ -399,11 +399,11 @@ class EzacRoosterSwitchForm extends FormBase {
 
     /* additional header pieces for errors, From cc's, bcc's, etc */
     $headers = [
-      'From' => "webmaster@ezac.nl",
+      //'From' => "webmaster@ezac.nl",
       'Bcc' => "webmaster@ezac.nl",
-      'X-Mailer' => "PHP",
+      //'X-Mailer' => "PHP",
       'Content-Type' => "text/html; charset=iso-8859-1",
-      'Return-Path' => "webmaster@ezac.nl",
+      //'Return-Path' => "webmaster@ezac.nl",
       ];
 
     /* and now mail it */
