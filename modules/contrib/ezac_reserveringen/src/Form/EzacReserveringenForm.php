@@ -390,10 +390,13 @@ class EzacReserveringenForm extends FormBase
       $subject = "Reservering $soort EZAC op $show_datum in de $periode periode";
 
       /* additional header pieces for errors, From cc's, bcc's, etc */
-      $headers  = "From: webmaster@ezac.nl\n";
-      $headers .= "X-Mailer: PHP\n"; // mailer
-      $headers .= "Return-Path: <webmaster@ezac.nl>\n"; // Return path for errors
-      $headers .= "Content-Type: text/html; charset=iso-8859-1\n"; // Mime type
+      $headers = [
+        'From' => "webmaster@ezac.nl",
+        'Bcc' => "webmaster@ezac.nl",
+        'X-Mailer' => "PHP",
+        'Content-Type' => "text/html; charset=iso-8859-1",
+        'Return-Path' => "webmaster@ezac.nl",
+      ];
 
       $body  = '<html lang="nl"><body>';
       $body .= "<p>Er is voor $naam een reservering voor $soort bij de EZAC aangemaakt";

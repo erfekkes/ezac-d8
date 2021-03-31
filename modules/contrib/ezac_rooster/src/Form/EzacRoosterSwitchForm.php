@@ -335,7 +335,6 @@ class EzacRoosterSwitchForm extends FormBase {
 
     /* recipients */
     $recipient = $lid1->e_mail ."; " .$lid2->e_mail;
-    $recipient .= "; webmaster@ezac.nl"; //ter controle
 
     /* subject */
     $subject = "Wijziging EZAC Dienstrooster op " . $datum1;
@@ -399,10 +398,13 @@ class EzacRoosterSwitchForm extends FormBase {
     $message .= "<i>EZAC dienstrooster systeem</i>";
 
     /* additional header pieces for errors, From cc's, bcc's, etc */
-    $headers  = "From: webmaster@ezac.nl\n";
-    $headers .= "X-Mailer: PHP\n"; // mailer
-    $headers .= "Return-Path: <webmaster@ezac.nl>\n"; // Return path for errors
-    $headers .= "Content-Type: text/html; charset=iso-8859-1\n"; // Mime type
+    $headers = [
+      'From' => "webmaster@ezac.nl",
+      'Bcc' => "webmaster@ezac.nl",
+      'X-Mailer' => "PHP",
+      'Content-Type' => "text/html; charset=iso-8859-1",
+      'Return-Path' => "webmaster@ezac.nl",
+      ];
 
     /* and now mail it */
     //mail alleen als er ook recipients zijn...

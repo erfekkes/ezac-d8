@@ -280,10 +280,13 @@ class EzacPassagiersBoekingForm extends FormBase {
     $body .= "</body></html>";
 
     //   Mailen van bevestiging
-    $headers  = "From: webmaster@ezac.nl\n";
-    $headers .= "X-Mailer: PHP\n"; // mailer
-    $headers .= "Return-Path: <webmaster@ezac.nl>\n"; // Return path for errors
-    $headers .= "Content-Type: text/html; charset=iso-8859-1\n"; // Mime type
+    $headers = [
+      'From' => "webmaster@ezac.nl",
+      'Bcc' => "webmaster@ezac.nl",
+      'X-Mailer' => "PHP",
+      'Content-Type' => "text/html; charset=iso-8859-1",
+      'Return-Path' => "webmaster@ezac.nl",
+    ];
     $mailed = mail($email, $subject, $body, $headers);
 
     if ($mailed) $messenger->addMessage("Bevestiging verstuurd aan $email",'status');
