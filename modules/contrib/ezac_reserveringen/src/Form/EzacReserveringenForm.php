@@ -393,8 +393,12 @@ class EzacReserveringenForm extends FormBase
       $show_datum = EzacUtil::showDate($datum);
       $subject = "Reservering $soort EZAC op $show_datum in de $periode periode";
 
-      /*
-      unset($body);
+      /* additional header pieces for errors, From cc's, bcc's, etc */
+      $headers  = "From: webmaster@ezac.nl\n";
+      $headers .= "X-Mailer: PHP\n"; // mailer
+      $headers .= "Return-Path: <webmaster@ezac.nl>\n"; // Return path for errors
+      $headers .= "Content-Type: text/html; charset=iso-8859-1\n"; // Mime type
+
       $body  = '<html lang="nl"><body>';
       $body .= "<p>Er is voor $naam een reservering voor $soort bij de EZAC aangemaakt";
       $body .= "<br>";
@@ -406,20 +410,25 @@ class EzacReserveringenForm extends FormBase
       $body .= "<br>Met vriendelijke groet,";
       $body .= "<br>Eerste Zeeuws Vlaamse Aero Club";
       $body .= "</body></html>";
-      EzacMail::mail('reserveer', 'reserveer', $email,$subject, $body );
-      */
+      $mailed = mail($email,$subject, $body, $headers);
 
-      //_ezacreserveer_mail($email, $subject, $body);
+      if ($mailed) {
+        $messenger->addMessage("Bevestiging verstuurd aan $email",'status');
+      }
+      else $messenger->addMessage("Bevestiging aan $email kon niet worden verstuurd", 'error');
+
+      /*
+      //_ezacreserveer_mail($email, $subject, $body, $headers);
       $body_plain = "Er is voor $naam een reservering voor $soort $doel bij de EZAC aangemaakt\r\n"
         ."\r\nDe reservering is voor $show_datum in de $periode periode.\r\n"
         ."\r\nMocht het noet mogelijk zijn hiervan gebruik te maken, dan kan deze reservering \r\n"
         ."via https://www.ezac.nl$urlAnnuleringString worden geannuleerd. \r\n"
         ."\r\n -- EZAC reservering systeem";
-      mail($email, $subject, $body_plain);
+      mail($email, $subject, $body_plain, $headers);
+      */
 
       // toon bevestiging
       //$form_state['redirect'] = "reservering";
 
-    // end D7 code
     } //submitForm
 }

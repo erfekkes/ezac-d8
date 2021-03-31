@@ -562,8 +562,12 @@ class EzacVbaVerslagTableForm extends FormBase {
         $message .= " door instructeur $leden($bevoegdheid->instructeur) </p>/r/n";
       }
     }
-    // @todo gebruikte functie was ezac_mail, nog na te kijken
-    mail($to, $subject, $message); //send e-mail
+    // verstuur mail
+    $headers  = "From: webmaster@ezac.nl\n";
+    $headers .= "X-Mailer: PHP\n"; // mailer
+    $headers .= "Return-Path: <webmaster@ezac.nl>\n"; // Return path for errors
+    $headers .= "Content-Type: text/html; charset=iso-8859-1\n"; // Mime type
+    $mailed = mail($to, $subject, $message, $headers);
 
   } // verslagenMail
 

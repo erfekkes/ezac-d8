@@ -336,7 +336,6 @@ class EzacRoosterSwitchForm extends FormBase {
     /* recipients */
     $recipient = $lid1->e_mail ."; " .$lid2->e_mail;
     $recipient .= "; webmaster@ezac.nl"; //ter controle
-    $recipient = "evert@efekkes.nl"; //debug
 
     /* subject */
     $subject = "Wijziging EZAC Dienstrooster op " . $datum1;
@@ -377,18 +376,19 @@ class EzacRoosterSwitchForm extends FormBase {
         'operator' => 'BETWEEN',
       ],
     ];
-    $roosterIndex = EzacRooster::index($condition);
+    $roosterIndex = EzacRooster::index($condition, 'id', 'datum');
+    /*
     foreach ($roosterIndex as $roosterId) {
       $r = new EzacRooster($roosterId);
       $rooster[$r->datum] = $r;
     }
-    foreach ($rooster as $datum => $r) {
-    //while ($line = $result->fetchAssoc()) {
-      $Dat1 = explode(" ", $r->datum);
-      $Dat  = explode("-", $Dat1[0]);
-      $message .= "<TR><TD>" . $Dat[2] . "-" . $Dat[1] . "-" . $Dat[0] . "</TD>\t";
-      $message .= "<TD>" . $r->pPeriode . "</TD>\t";
-      $message .= "<TD>" . $diensten[$r->dienst] . "</TD>\t";
+    */
+    foreach ($roosterIndex as $id) {
+      $r = new EzacRooster($id);
+      $dat = EzacUtil::showDate(substr($r->datum,0, 10));
+      $message .= "<TR><TD>$dat</TD>\t";
+      $message .= "<TD>$r->periode</TD>\t";
+      $message .= "<TD>" .$diensten[$r->dienst]."</TD>\t";
       $message .= "<TD>" . $leden[$r->naam] . "</TD>\t";
       $message .= "</TR>\n";
     }
@@ -399,27 +399,17 @@ class EzacRoosterSwitchForm extends FormBase {
     $message .= "<i>EZAC dienstrooster systeem</i>";
 
     /* additional header pieces for errors, From cc's, bcc's, etc */
-
     $headers  = "From: webmaster@ezac.nl\n";
     $headers .= "X-Mailer: PHP\n"; // mailer
     $headers .= "Return-Path: <webmaster@ezac.nl>\n"; // Return path for errors
-
-    /* If you want to send html mail, uncomment the following line */
     $headers .= "Content-Type: text/html; charset=iso-8859-1\n"; // Mime type
 
-    //$headers .= "cc: birthdayarchive@php.net\n"; // CC to
-    //$headers .= "bcc: birthdaycheck@php.net, birthdaygifts@php.net"; // BCCs to
-
     /* and now mail it */
-    $print = "Mail wordt verzonden";
-    $print .= "<p>To: " . $recipient . "<br>\n";
-    $print .= "Subject: " . $subject . "<br>\n";
-    $print .= "<p>" . $message . "<br>\n";
-    $print .= "<p>Headers: " . $headers . "\n";
-
     //mail alleen als er ook recipients zijn...
     if (isset($recipient)) {
-      mail($recipient, $subject, $message, $headers); //mail even uitgezet voor test DEBUG
+      $mailed = mail($recipient, $subject, $message, $headers);
+      //   Mailen van bevestiging
+      if (!$mailed) $messenger->addMessage("Bevestiging kon niet worden verstuurd aan $recipient",'error');
     }
 
     // redirect naar rooster overzicht
