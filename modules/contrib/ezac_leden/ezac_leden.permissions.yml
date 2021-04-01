@@ -1,5 +1,5 @@
 EZAC_leden_read:
-  title: 'Lezen EZAC alle leden'
+  title: 'Lezen alle EZAC leden'
   description: 'Lezen gegevens alle leden'
   restrict access: true
 

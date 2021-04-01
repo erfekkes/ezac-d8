@@ -81,6 +81,7 @@ class EzacLedenController extends ControllerBase {
     ];
     
     //toon functie om user-ids voor de EZAC website aan te maken
+    /*
     $urlCreate = Url::fromRoute(
       'ezac_leden_user_create'
     )->toString();
@@ -88,12 +89,11 @@ class EzacLedenController extends ControllerBase {
       '#type' => 'markup',
       '#markup' => "<a href=$urlCreate>Aanmaken user-id voor EZAC website</a>",
     ];
+    */
     
     // Don't cache this page.
     $content['#cache']['max-age'] = 0;
 
-    //apply css
-    //$content['#attached']['library'][] = 'Ezac/dlotable'; // of met ['css']
     return $content;
   }
 
