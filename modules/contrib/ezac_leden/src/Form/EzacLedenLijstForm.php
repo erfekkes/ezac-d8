@@ -93,11 +93,14 @@ class EzacLedenLijstForm extends FormBase {
       ],
       '#states' => [
         'invisible' => [
-          ':input[name="voornaam"]' => ['value' => NULL],
-          ':input[name="achternaam"]' => ['value' => NULL],
+          ':input[name="voornaam"]' => ['value' => ''],
+          ':input[name="achternaam"]' => ['value' => ''],
         ],
       ],
     ];
+
+    // switch off caching for ajax processing
+    $form_state->setCached(false);
 
     /*
     $form['actions'] = [
@@ -114,6 +117,7 @@ class EzacLedenLijstForm extends FormBase {
   }
 
   function formCallBack(array &$form, FormStateInterface $form_state) {
+    $form_state->setRebuild(TRUE);
     return ($form['table']);
   }
 
