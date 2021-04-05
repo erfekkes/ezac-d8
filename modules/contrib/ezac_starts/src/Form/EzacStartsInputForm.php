@@ -15,48 +15,35 @@ use Drupal\ezac_starts\Model\EzacStart;
  * UI to update starts record
  * tijdelijke aanpassing
  */
-class EzacStartsUpdateForm extends FormBase {
+class EzacStartsInputForm extends FormBase {
 
   /**
    * @inheritdoc
    */
   public function getFormId(): string {
-    return 'ezac_starts_update_form';
+    return 'ezac_starts_input_form';
   }
 
   /**
-   * buildForm for STARTS update with ID parameter
-   * This is also used to CREATE new starts record (no ID param given as input)
+   * buildForm for STARTS input in a list format
    *
    * @param array $form
    * @param FormStateInterface $form_state
-   * @param null $id
+   * @param null|string $datum
+   * @param null|string $selectie alle | start | landing
    *
    * @return array
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $id = NULL): array {
+  public function buildForm(array $form, FormStateInterface $form_state, $datum = NULL, $selectie = null): array {
     // Wrap the form in a div.
     $form = [
-      '#prefix' => '<div id="updateform">',
+      '#prefix' => '<div id="inputform">',
       '#suffix' => '</div>',
     ];
 
     // Query for items to display.
-    // if $id is set, perform UPDATE else CREATE
-    if (isset($id)) {
-      $start = new EzacStart($id);
-      $newRecord = FALSE;
-    }
-    else { // prepare new record
-      $start = new EzacStart(); // create empty start occurrence
-      $newRecord = TRUE;
-    }
-
-    //store indicator for new record for submit function
-    $form['new'] = [
-      '#type' => 'value',
-      '#value' => $newRecord, // TRUE or FALSE
-    ];
+    //@todo select last date in starts as default?
+    if ($datum == null) $datum = date('Y-m-d'); //today default
 
     // get names of leden
     $condition = [
@@ -64,10 +51,21 @@ class EzacStartsUpdateForm extends FormBase {
       'code' => 'VL',
     ];
     $leden = EzacUtil::getLeden($condition);
-
+    $form['leden'] = [
+      '#type' => 'value',
+      '#value' => $leden,
+    ];
     // get kisten details
     $kisten = EzacUtil::getKisten();
+    $form['kisten'] = [
+      '#type' => 'value',
+      '#value' => $kisten,
+    ];
 
+    // prepare start record
+    $start = new EzacStart;
+
+    // check for tweezitter setting
     if ($form_state->getValue('registratie') != '') {
       // Check op tweezitter via (changed) form element
       $kist = new EzacKist(EzacKist::getID($form_state->getValue('registratie')));
@@ -94,58 +92,55 @@ class EzacStartsUpdateForm extends FormBase {
     $form['datum'] = [
       '#type' => 'date',
       '#title' => 'datum',
-      '#default_value' => $start->datum,
+      '#default_value' => $datum,
       '#required' => TRUE,
     ];
 
-    // test if registratie exists
-    $form['registratie_bekend'] = [
-      '#type' => 'value',
-      '#value' => ($start->registratie != '') ? key_exists($start->registratie, $kisten) : false,
-      '#attributes' => [
-        'name' => 'registratie_bekend'
-      ],
+    // startlijst header
+    $header = [
+      t('registratie'),
+      t('gezagvoerder'),
+      t('tweede inzittende'),
+      t('start'),
+      t('landing'),
+      t('duur'),
+      t('startmethode'),
+      t('instructie'),
+      t('soort'),
+      t('opmerking'),
     ];
 
-    // the form has two possible fields for registratie, one select and one textfield if unknown value
-    // the textfield is enabled when the select field is [''] <Onbekend>
-    $form['registratie'] = [
-      '#type' => 'select',
-      '#title' => 'registratie',
-      '#options' => $kisten,
-      // use ajax to set tweezitter value to dynamically show tweede field for tweezitters
-      '#ajax' => [
-        'callback' => '::formTweedeCallback',
-        'wrapper' => 'tweezitter',
-      ],
-      '#attributes' => [
-        'name' => 'registratie',
-      ]
+    $caption = t("Startlijst voor ") .EzacUtil::showDate($datum);
+
+    $form['startlijst'] = [
+      // Theme this part of the form as a table.
+      '#type' => 'table',
+      '#header' => $header,
+      '#caption' => $caption,
+      '#sticky' => TRUE,
+      '#weight' => 5,
+      '#prefix' => '<div id="startlijst-div">',
+      '#suffix' => '</div>',
     ];
 
-    $form['registratie_onbekend'] = [
-      '#type' => 'textfield',
-      '#title' => 'registratie',
-      '#size' => 10,
-      '#maxlength' => 10,
-      '#states' => [
-        // show only when registratie == [''] <Onbekend>
-        'visible' => [
-          ':input[name="registratie"]' => ['value' => ''],
-         ],
-       ],
+    // zet starts in startlijst
+    $condition = [
+      'datum' => $datum,
     ];
-
-    if (($start->registratie != '') and key_exists($start->registratie, $kisten)) {
-      $form['registratie']['#default_value'] = $start->registratie;
-      $form['registratie_onbekend']['#default_value'] = '';
+    if ($selectie == 'start') {
+      $condition['start'] = null;
     }
-    else {
-      $form['registratie']['#default_value'] = '';
-      $form['registratie_onbekend']['#default_value'] = $start->registratie;
+    if ($selectie == 'landing') {
+      $condition['landing'] = null;
     }
+    $startsIndex = EzacStart::index($condition);
+    foreach ($startsIndex as $id) {
+      $this->addStart($form, new EzacStart($id));
+    }
+    // add blank line
+    $this->addStart($form, new EzacStart());
 
-    // @todo allow for unknown name using checkbox
+    /*
     $form['gezagvoerder'] = [
       '#type' => 'select',
       '#title' => 'gezagvoerder',
@@ -257,10 +252,9 @@ class EzacStartsUpdateForm extends FormBase {
     $form['duur'] = [
       '#type' => 'textfield',
       '#title' => 'duur',
-      '#value' => substr($start->duur, 0, 5),
+      '#default_value' => substr($start->duur, 0, 5),
       '#size' => 5,
       '#maxlength' => 5,
-      '#disabled' => true,
     ];
 
     $form['instructie'] = [
@@ -277,11 +271,9 @@ class EzacStartsUpdateForm extends FormBase {
     ];
 
     //Id
-    //Toon het het Id nummer van het record
     $form['id'] = [
-      '#type' => 'hidden',
-      '#title' => 'record number (id)',
-      '#default_value' => $start->id,
+      '#type' => 'value',
+      '#value' => $start->id,
     ];
 
     $form['actions'] = [
@@ -290,23 +282,132 @@ class EzacStartsUpdateForm extends FormBase {
 
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $newRecord ? t('Invoeren') : t('Update'),
+      '#value' => t('Invoeren'),
       '#weight' => 31,
     ];
+    */
+    return $form;
+  }
 
-    //insert Delete button  gevaarlijk ivm dependencies
-    if (Drupal::currentUser()->hasPermission('EZAC_delete')) {
-      if (!$newRecord) {
-        $form = EzacUtil::addField($form, 'deletebox', 'checkbox', 'verwijder', 'verwijder record', FALSE, 1, 1, FALSE, 29);
-        $form['actions']['delete'] = [
-          '#type' => 'submit',
-          '#value' => t('Verwijderen'),
-          '#weight' => 32,
-        ];
-      }
+  /**
+   * @param $form
+   * @param \Drupal\ezac_starts\Model\EzacStart $start
+   */
+  function addStart(&$form, EzacStart $start) {
+    $id = $start->id;
+
+    // test if registratie exists
+    $registratie_bekend = ($start->registratie != '') ? key_exists($start->registratie, $form['kisten']) : false;
+
+    // the form has two possible fields for registratie, one select and one textfield if unknown value
+    // the textfield is enabled when the select field is [''] <Onbekend>
+    $form['startlijst'][$id]['registratie'] = [
+      '#type' => 'container',
+      '#tree' => true,
+    ];
+
+    $form['startlijst'][$id]['registratie']['bekend'] = [
+      '#type' => 'select',
+      '#title' => 'registratie',
+      '#options' => $form['kisten'],
+      //'#default_value' => ($registratie_bekend) ? $start->registratie : '',
+      // use ajax to set tweezitter value to dynamically show tweede field for tweezitters
+      '#ajax' => [
+        'callback' => '::formTweedeCallback',
+        'wrapper' => "tweezitter_$id",
+      ],
+      '#states' => [
+        // show only when registratie_onbekend == [''] <not entered>
+        'visible' => [
+          ':input[name="registratie_onbekend_"'.$id .'"]' => ['value' => ''],
+        ],
+      ],
+      '#attributes' => [
+        'name' => "registratie_$id",
+      ]
+    ];
+
+    $form['startlijst'][$id]['registratie']['onbekend'] = [
+      '#type' => 'textfield',
+      '#title' => 'registratie',
+      '#size' => 10,
+      '#maxlength' => 10,
+      '#states' => [
+        // show only when registratie == [''] <Onbekend>
+        'visible' => [
+          ':input[name="registratie_"'.$id .'"]' => ['value' => ''],
+        ],
+      ],
+      '#attributes' => [
+        'name' => "registratie_onbekend_$id",
+      ]
+    ];
+
+    // fill default values
+    if (($start->registratie != '') and key_exists($start->registratie, $form['kisten'])) {
+      $form['startlijst'][$id]['registratie']['bekend']['#default_value'] = $start->registratie;
+      $form['startlijst'][$id]['registratie']['onbekend']['#default_value'] = '';
+    }
+    else {
+      $form['startlijst'][$id]['registratie']['bekend']['#default_value'] = '';
+      $form['startlijst'][$id]['registratie']['onbekend']['#default_value'] = $start->registratie;
     }
 
-    return $form;
+    //@todo nog aanpassen
+    $form['startlijst'][$id]['gezagvoerder'] = [
+      '#type' => 'textfield',
+      '#default_value' => $start->gezagvoerder,
+      '#size' => 6,
+      '#required' => false,
+    ];
+    $form['startlijst'][$id]['tweede'] = [
+      '#type' => 'textfield',
+      '#default_value' => $start->tweede,
+      '#size' => 6,
+      '#required' => false,
+    ];
+    $form['startlijst'][$id]['start'] = [
+      '#type' => 'time',
+      '#default_value' => $start->start,
+      '#size' => 6,
+      '#required' => false,
+    ];
+    $form['startlijst'][$id]['landing'] = [
+      '#type' => 'time',
+      '#default_value' => $start->landing,
+      '#size' => 6,
+      '#required' => false,
+    ];
+    $form['startlijst'][$id]['duur'] = [
+      '#type' => 'time',
+      '#default_value' => $start->duur,
+      '#size' => 6,
+      '#required' => false,
+    ];
+    $form['startlijst'][$id]['startmethode'] = [
+      '#type' => 'select',
+      '#options' => EzacStart::$startMethode,
+      '#default_value' => $start->startmethode,
+      '#required' => false,
+    ];
+    $form['startlijst'][$id]['instructie'] = [
+      '#type' => 'checkbox',
+      '#default_value' => $start->instructie,
+      '#required' => false,
+    ];
+    $form['startlijst'][$id]['soort'] = [
+      '#type' => 'select',
+      '#options' => EzacStart::$startSoort,
+      '#default_value' => $start->soort,
+      '#required' => false,
+    ];
+    $form['startlijst'][$id]['opmerking'] = [
+      '#type' => 'textfield',
+      '#default_value' => $start->opmerking,
+      '#size' => 20,
+      '#required' => false,
+    ];
+
   }
 
   /**
@@ -336,6 +437,7 @@ class EzacStartsUpdateForm extends FormBase {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     // perform validate for edit of record
 
+    //@todo traverse startlijst tabel
     // gezagvoerder
     $gezagvoerder = $form_state->getValue('gezagvoerder');
     if ($gezagvoerder <> $form['gezagvoerder']['#default_value']) {
@@ -354,31 +456,6 @@ class EzacStartsUpdateForm extends FormBase {
         $form_state->setErrorByName('datum', t("Datum [$dat] is onjuist"));
       }
     }
-
-    //start
-    $start = $form_state->getValue('start');
-    if ($start <> '') {
-      $stc = explode(':', $start);
-      if (!is_numeric($stc[0]) || ($stc[0] < 0) || ($stc[0] > 23)) $form_state->setErrorByName('start', 'ongeldige tijd');
-      if (!is_numeric($stc[1]) || ($stc[1] < 0) || ($stc[1] > 59)) $form_state->setErrorByName('start', 'ongeldige tijd');
-    }
-
-    //landing
-    $landing = $form_state->getValue('landing');
-    if ($landing <> '') {
-      $stc = explode(':', $landing);
-      if (!is_numeric($stc[0]) || ($stc[0] < 0) || ($stc[0] > 23)) $form_state->setErrorByName('landing', 'ongeldige tijd');
-      if (!is_numeric($stc[1]) || ($stc[1] < 0) || ($stc[1] > 59)) $form_state->setErrorByName('landing', 'ongeldige tijd');
-    }
-
-    //duur
-    $duur = $form_state->getValue('duur');
-    if ($duur <> '') {
-      $stc = explode(':', $duur);
-      if (!is_numeric($stc[0]) || ($stc[0] < 0) || ($stc[0] > 23)) $form_state->setErrorByName('duur', 'ongeldige tijd');
-      if (!is_numeric($stc[1]) || ($stc[1] < 0) || ($stc[1] > 59)) $form_state->setErrorByName('duur', 'ongeldige tijd');
-    }
-
   }
 
   /**
@@ -388,39 +465,14 @@ class EzacStartsUpdateForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $messenger = Drupal::messenger();
 
-    // delete record
-    if ($form_state->getValue('op') == 'Verwijderen') {
-      if (!Drupal::currentUser()->hasPermission('EZAC_delete')) {
-        $messenger->addMessage('Verwijderen niet toegestaan', $messenger::TYPE_ERROR);
-        return;
-      }
-      if ($form_state->getValue('deletebox') == FALSE) {
-        $messenger->addMessage('Verwijdering niet geselecteerd', $messenger::TYPE_ERROR);
-        return;
-      }
-      $start = new EzacStart; // initiate Start instance
-      $start->id = $form_state->getValue('id');
-      $count = $start->delete(); // delete record in database
-      $messenger->addMessage("$count record verwijderd");
-    }
-    else {
+      //@todo traverse startlijst tabel
+
       // Save the submitted entry.
       $start = new EzacStart;
       // get all fields
       foreach (EzacStart::$fields as $field => $description) {
         $start->$field = $form_state->getValue($field);
       }
-
-      $s = new \DateTime("$start->datum $start->start");
-      $l = new \DateTime("$start->datum $start->landing"); // for diff calculation
-      if ($l < $s) {
-        $messenger->addMessage("Landing voor start $start->landing", 'error');
-        return;
-      }
-      //duur is calculated
-      $diff = date_diff($l, $s);
-      $start->duur = "$diff->h:$diff->i";
-
       //check gezagvoerder_onbekend, tweede_onbekend, registratie_onbekend
       if (($start->gezagvoerder == '') && $form_state->getValue('gezagvoerder_onbekend') != '')
         $start->gezagvoerder = $form_state->getValue('gezagvoerer_onbekend');
@@ -431,20 +483,21 @@ class EzacStartsUpdateForm extends FormBase {
 
       //Check value newRecord to select insert or update
       if ($form_state->getValue('new') == TRUE) {
-        $start->create(); // add record in database
-        $messenger->addMessage("Starts record aangemaakt met id [$start->id]", $messenger::TYPE_STATUS);
+        //$start->create(); // add record in database
+        //$messenger->addMessage("Starts record aangemaakt met id [$start->id]", $messenger::TYPE_STATUS);
 
       }
       else {
-        $count = $start->update(); // update record in database
-        $messenger->addMessage("$count record updated", $messenger::TYPE_STATUS);
+        //$count = $start->update(); // update record in database
+        //$messenger->addMessage("$count record updated", $messenger::TYPE_STATUS);
       }
-    }
+
     //go back to starts overzicht
     $redirect = Url::fromRoute(
-      'ezac_starts_create',
+      'ezac_starts_overzicht',
       [
-        'datum' => $form_state->getValue('datum'),
+        'datum_start' => $form_state->getValue('datum'),
+        'datum_eind' => $form_state->getValue('datum'),
       ]
     );
     $form_state->setRedirectUrl($redirect);

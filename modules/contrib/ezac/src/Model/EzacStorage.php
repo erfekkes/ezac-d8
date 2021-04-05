@@ -52,7 +52,7 @@ class EzacStorage {
    *   The EZAC table to be used for the database operation
    * @param null $condition
    *   The condition for the update as array (field => value) (=)
-   *   alternative: field[value => value, operator => operator]
+   *   alternative: field['#value' => value, '#op' => operator]
    * @param string $field
    * @param null $sortkey
    *  the field for which the read should be sorted
@@ -113,8 +113,8 @@ class EzacStorage {
         } //orGroup
         else {
           // combined condition
-          $value = $test["value"];
-          $operator = $test["operator"];
+          $value = $test["value"]; //@todo change to '#value'
+          $operator = $test["operator"]; // @todo change to '#op'
           $select->condition($field, $value, $operator);
         }
         // simple condition
@@ -125,8 +125,28 @@ class EzacStorage {
     }
     // sort the result
     if (isset($sortkey)) {
-      $select->orderBy($sortkey, $sortdir);
+      if (!is_array($sortkey)) {
+        $select->orderBy($sortkey, $sortdir);
+      }
+      else {
+        /*
+         * multiple sort keys specified in array format, 1..n occurrences
+         * '#key' => 'field'
+         * '#dir' => 'ASC' | 'DESC'
+        */
+        if (key_exists('#key',$sortkey)) {
+          // single sort specified
+          $select->orderBy($sortkey['#key'], (isset($sortkey['#dir']) ? $sortkey['#dir'] : 'ASC'));
+        }
+        else {
+          // multiple sorts specified
+          foreach ($sortkey as $i => $sort) {
+            $select->orderBy($sort['#key'], (isset($sort['#dir']) ? $sort['#dir'] : 'ASC'));
+          }
+        }
+      }
     }
+
     // add range for pager
     if (isset($range)) {
       $select->range($from, $range);

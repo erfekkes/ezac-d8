@@ -3,6 +3,7 @@
 
 namespace Drupal\ezac_starts\Plugin\rest\resource;
 
+use DateTime;
 use Drupal;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
@@ -245,12 +246,13 @@ class EzacStartsResource extends ResourceBase {
         or (intval($start_delen[1] > 59))) {
         throw new BadRequestHttpException("Invalid start time: $start");
       }
-      $start = strtotime("$datum $start");
-      $start_record->start = date('Y-m-d H:i:s',$start); //construct valid datetime format
+      $start_timestamp = strtotime("$datum $start");
+      $s = new DateTime("$datum $start"); // for diff calculation
+      $start_record->start = date('Y-m-d H:i:s',$start_timestamp); //construct valid datetime format
     }
     else {
       // no start provided
-      $start_record->start = date('Y-m-d H:i:s', 0);
+      $start_record->start = null;
     }
 
     // landing
@@ -264,19 +266,20 @@ class EzacStartsResource extends ResourceBase {
         or (intval($landing_delen[1] > 59))) {
         throw new BadRequestHttpException("Invalid landing time: $landing");
       }
-      $landing = strtotime("$datum $landing");
-      if ($landing < $start) {
+      $landing_timestamp = strtotime("$datum $landing");
+      $l = new DateTime("$datum $landing"); // for diff calculation
+      if ($l < $s) {
         throw new BadRequestHttpException("Landing before start $landing");
       }
-      $start_record->landing = date('Y-m-d H:i:s',$landing); //construct valid datetime format
+      $start_record->landing = date('Y-m-d H:i:s',$landing_timestamp); //construct valid datetime format
       //duur is calculated
-      // @TODO duur is calculated one hour wrong
-      $start_record->duur = date('Y-m-d H:i:s', $landing-$start);
+      $diff = date_diff($l, $s, true);
+      $start_record->duur = date("Y-m-d $diff->h:$diff->i:$diff->s");
     }
     else {
       // no landing provided
-      $start_record->landing = date('Y-m-d H:i:s', 0);
-      $start_record->duur = date('Y-m-d H:i:s', 0);
+      $start_record->landing = null;
+      $start_record->duur = null;
     }
 
     // duur is calculated from start-landing

@@ -147,7 +147,7 @@ class EzacStart extends EzacStorage
      *
      * @param null $condition
      * @param string $field
-     * @param string $sortkey
+     * @param string|array $sortkey
      * @param string $sortdir
      * @param $from
      * @param $range

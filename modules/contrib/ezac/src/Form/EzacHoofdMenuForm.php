@@ -45,9 +45,7 @@ class EzacHoofdMenuForm extends FormBase {
    * jaar_callback ajax form update
    */
   public function jaarCallback($form, &$form_state) {
-    // update menu for selected jaar
-    $jaar = $form_state->getValue('jaar');
-    return self::buildMenu($jaar);  
+    return self::buildMenu();
   }
 
   /**
@@ -67,7 +65,6 @@ class EzacHoofdMenuForm extends FormBase {
   
   /**
    * Build the EZAC main menu.
-   * @param varchar $jaar
    * @return array menu table
    */
   public function buildMenu() {
