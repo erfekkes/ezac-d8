@@ -35,7 +35,11 @@ class EzacStartsController extends ControllerBase {
     
     $total = 0;
     $condition = [];
-    $datums = array_unique(EzacStart::index($condition, 'datum', 'datum','DESC'));
+    $sortkey = [
+      '#key' => 'datum',
+      '#dir' => 'DESC',
+    ];
+    $datums = array_unique(EzacStart::index($condition, 'datum', $sortkey));
     $jaren = [];
     foreach ($datums as $datum) {
       $dp = date_parse($datum);
@@ -49,8 +53,7 @@ class EzacStartsController extends ControllerBase {
       $urlJaar = Url::fromRoute(
         'ezac_starts_overzicht',
         [
-          'datum_start' => "$jaar-01-01",
-          'datum_eind' => "$jaar-12-31",
+          'datum' => "$jaar-01-01:$jaar-12-31",
         ]
       )->toString();
       $urlExport = Url::fromRoute(
@@ -135,10 +138,12 @@ class EzacStartsController extends ControllerBase {
 
     $from = $range * $page;
     $field = 'datum';
-    $sortkey = 'datum';
-    $sortdir = 'ASC';
+    $sortkey = [
+      '#key' => 'datum',
+      '#dir' => 'ASC',
+    ];
 
-    $startsDates = EzacStart::index($condition, $field, $sortkey, $sortdir);
+    $startsDates = EzacStart::index($condition, $field, $sortkey);
     $startsIndex = array_unique($startsDates);
 
     $dagen = [];
@@ -151,8 +156,7 @@ class EzacStartsController extends ControllerBase {
       $urlString = Url::fromRoute(
         'ezac_starts_overzicht',  // show starts for datum
         [
-          'datum_start' => $datum,
-          'datum_eind' => $datum,
+          'datum' => $datum,
         ]
       )->toString();
 
@@ -184,14 +188,18 @@ class EzacStartsController extends ControllerBase {
   } // overzichtJaar
 
   /**
-   * @param string $datum_start
-   * @param string $datum_eind null
+   * @param string $datum YYYY-MM-DD[:YYYY-MM-DD]
    * @param string $vlieger null
    * @param boolean $detail true
    * @return array $content
    */
-  public static function startOverzicht($datum_start, $datum_eind = NULL, $vlieger = NULL, $detail = TRUE) {
-
+  public static function startOverzicht($datum, $vlieger = NULL, $detail = TRUE) {
+    $messenger = Drupal::messenger();
+    $errmsg = EzacUtil::checkDatum($datum, $datum_start, $datum_eind);
+    if ($errmsg != "") {
+      $messenger->addMessage("Foutieve datum [$errmsg]",'error');
+      return [];
+    }
     // lees volledige ledenlijst
     $leden = EzacUtil::getLeden();
 
@@ -254,8 +262,18 @@ class EzacStartsController extends ControllerBase {
     // prepare pager
     $total = EzacStart::counter($condition);
     $field = 'id';
-    $sortkey = 'datum'; //@todo binnen datum ook op tijd te sorteren
-    $sortdir = 'ASC'; // ascending
+    $sortkey = [
+      [
+        '#key' => 'datum',
+        '#dir' => 'ASC',
+      ],
+      [
+        '#key' => 'start',
+        '#dir' => 'ASC',
+      ],
+    ];
+    $sortdir = 'ASC'; // deprecated
+
     if ($detail) {
       // @todo pager werkt niet goed, error bij display 2e pagina
       $limit = 100; // set only when details requested
@@ -314,7 +332,7 @@ class EzacStartsController extends ControllerBase {
 
       $rows[] = [
         //link each record to edit route
-        $start->datum,
+        EzacUtil::showDate($start->datum),
         $tijd,
         substr($start->landing,0,5),
         substr($start->duur, 0,5),
@@ -450,8 +468,6 @@ class EzacStartsController extends ControllerBase {
       $content[4]['#empty'] = t('Geen gegevens beschikbaar');
       $content[4]['#weight'] = 4;
     } //if soort-tellers
-
-    // end D7 code
 
     if ($detail) {
       // show details only when required

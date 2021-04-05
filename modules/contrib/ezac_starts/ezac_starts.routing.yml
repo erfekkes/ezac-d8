@@ -8,7 +8,7 @@ ezac_starts:
     _user: ^[a-zA-Z0-9_]+
 
 ezac_starts_overzicht:
-  path: '/ezac/starts/overzicht/{datum_start}/{datum_eind}'
+  path: '/ezac/starts/overzicht/{datum}'
   defaults:
     _title: 'Startsoverzicht'
     _controller: '\Drupal\ezac_starts\Controller\EzacStartsController::startOverzicht'
@@ -21,12 +21,13 @@ ezac_starts_startlijst:
   defaults:
     _title: 'Startlijst overzicht'
     _form: '\Drupal\ezac_starts\Form\EzacStartsOverzichtForm'
+    periode:
   requirements:
     _permission: 'EZAC_read'
     _user: ^[a-zA-Z0-9_]+
 
 ezac_starts_overzicht_lid:
-  path: '/ezac/starts/overzicht/{datum_start}/{datum_eind}/{vlieger}'
+  path: '/ezac/starts/overzicht/{datum}/{vlieger}'
   defaults:
     _title: 'Startsoverzicht'
     _controller: '\Drupal\ezac_starts\Controller\EzacStartsController::startOverzicht'
@@ -60,6 +61,15 @@ ezac_starts_create:
   requirements:
     _permission: 'EZAC_update'
     _user: ^[a-zA-Z0-9_]+
+
+ezac_starts_lijstinvoer:
+  path: 'ezac/starts/lijstinvoer/{datum}'
+  defaults:
+    _title: 'Startlijst invoer'
+    _form: '\Drupal\ezac_starts\Form\EzacStartsInputForm'
+    datum: ''
+  requirements:
+    _permission: 'EZAC_update'
 
 ezac_starts_export_form:
   path: '/ezac/starts/export/form'

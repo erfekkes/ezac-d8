@@ -69,7 +69,6 @@ class EzacStartsOverzichtForm extends FormBase {
         'seizoen' => 'dit seizoen',
         'jaar' => '12 maanden',
         'tweejaar' => '24 maanden',
-        //'anders' => 'andere periode',
       ];
 
       $form['startlijst']['periode'] = [
@@ -91,8 +90,36 @@ class EzacStartsOverzichtForm extends FormBase {
 
     switch ($periode) {
       case 'vandaag' :
-        $datum_start = date('Y-m-d');
-        $datum_eind = date('Y-m-d');
+        // selecteer een dag
+        // maak lijst van vliegdagen dit jaar
+        $jaar = date('Y');
+        $condition = [
+          'datum' => [
+            'value' => ["$jaar-01-01", "$jaar-12-31"],
+            'operator' => 'BETWEEN',
+          ],
+        ];
+        $sortkey = [
+          '#key' => 'datum',
+          '#dir' => 'DESC',
+        ];
+        $dagenIndex = array_unique(EzacStart::index($condition, 'datum',$sortkey));
+        foreach ($dagenIndex as $dag) $dagen[$dag] = EzacUtil::showDate($dag);
+        $form['startlijst']['datum'] = [
+          '#type' => 'select',
+          '#title' => 'Datum',
+          '#options' => $dagen,
+          '#weight' => 3,
+          '#ajax' => [
+            'wrapper' => 'startlijst-div',
+            'callback' => '::formPersoonCallback',
+            'effect' => 'fade',
+            'progress' => ['type' => 'throbber'],
+          ],
+        ];
+        $datum_start = $form_state->getValue('datum') ?? array_key_first($dagen);
+        if (!isset($datum_start)) $datum_start = date('Y-m-d'); // vandaag
+        $datum_eind = $datum_start;
         break;
       case 'maand' :
         $datum_start = date('Y-m-d', mktime(0, 0, 0, date('n') - 1, date('j'), date('Y')));
@@ -110,8 +137,6 @@ class EzacStartsOverzichtForm extends FormBase {
         $datum_start = date('Y') . '-01-01'; //this year
         $datum_eind = date('Y') . '-12-31';
         break;
-      case 'anders':
-        //@todo select dates for list with form input
       default: // vandaag
         $datum_start = date('Y-m-d');
         $datum_eind = date('Y-m-d');
@@ -185,8 +210,6 @@ class EzacStartsOverzichtForm extends FormBase {
       }
       else $persoon = key($namen);
     }
-    $ds = $form_state->getValue('start') ?? $datum_start;
-    $de = $form_state->getValue('eind') ?? $datum_eind;
 
     $details = false;
     $form['startlijst']['details'] = [
@@ -215,11 +238,7 @@ class EzacStartsOverzichtForm extends FormBase {
     $details = $form_state->getValue('details');
 
     //toon vluchten dit jaar
-    $form['startlijst']['starts'] = EzacStartsController::startOverzicht(
-      $ds,
-      $de,
-      $p,
-      $details);
+    $form['startlijst']['starts'] = EzacStartsController::startOverzicht("$datum_start:$datum_eind", $p, $details);
     $form['startlijst']['starts']['#weight'] = 5;
 
     return $form;
@@ -232,7 +251,6 @@ class EzacStartsOverzichtForm extends FormBase {
    * @return array|mixed
    */
   function formPersoonCallback(array $form, FormStateInterface $form_state): array {
-
     return $form['startlijst'];
   }
 
