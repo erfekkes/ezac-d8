@@ -259,16 +259,27 @@ class EzacRoosterTableForm extends FormBase
 
         if ($dw != $dienst) { //dienst is veranderd
           if ($dw == '-') { //dienst is nieuw ingevoerd (was eerst '-')
-            //create dienst record
-            $rooster = new EzacRooster();
-            $rooster->datum = $datum;
-            $rooster->periode = $periode;
-            $rooster->dienst = $dienst;
-            $rooster->naam = $afkorting;
-            $rooster->mutatie = date('Y-m-d H:i:s');
-            $rooster->geruild = '';
-            $id = $rooster->create();
-            $messenger->addMessage("Dienst $diensten[$dienst] $periode [$id] voor $naam aangemaakt");
+            // check if dienst already exists for idempotency
+            $condition = [
+              'datum' => $datum,
+              'periode' => $periode,
+              'dienst' => $dienst,
+              'naam' => $afkorting,
+            ];
+            $index = EzacRooster::index($condition);
+            if ($index == []) {
+              //create dienst record
+              $rooster = new EzacRooster();
+              $rooster->datum = $datum;
+              $rooster->periode = $periode;
+              $rooster->dienst = $dienst;
+              $rooster->naam = $afkorting;
+              $rooster->mutatie = date('Y-m-d H:i:s');
+              $rooster->geruild = '';
+              $id = $rooster->create();
+              $messenger->addMessage("Dienst $diensten[$dienst] $periode [$id] voor $naam aangemaakt");
+            }
+            else $messenger->addError("Dienst $dienst op $datum $periode voor $leden[$afkorting] bestaat al");
           }
           elseif ($dienst == '-') {
             //dienst verwijderd (is nu '-')
