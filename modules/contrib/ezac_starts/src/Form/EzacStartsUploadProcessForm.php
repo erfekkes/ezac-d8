@@ -4,6 +4,7 @@
 namespace Drupal\ezac_starts\Form;
 
 
+use ArrayObject;
 use Drupal;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Datetime\Element\Datetime;
@@ -24,6 +25,40 @@ class EzacStartsUploadProcessForm extends \Drupal\Core\Form\FormBase {
   public function getFormId() {
     return 'ezac_starts_upload_process_form';
   }
+
+  /**
+   * @param array $a
+   * @param array $b
+   *
+   * @return bool
+   */
+  private function start_sort(array $a, array $b) {
+    if ($a['start'] == '00:00') $a['start'] = '';
+    if ($b['start'] == '00:00') $b['start'] = '';
+    return ($a['datum'] . $a['start'] . $a['registratie']) > ($b['datum'] . $b['start'] . $b['registratie']);
+  }
+
+  /**
+   * @param array $a
+   * @param array $b
+   *
+   * @return bool
+   */
+   function identical(array $a, array $b): bool {
+      $identical = true;
+      foreach ($a as $key => $value) {
+        if (in_array($key,['start', 'landing', 'duur'])) {
+          // test with '00:00' for empty times
+          if ((($a[$key] == '') ? '00:00' : $a[$key]) != ($b[$key] == '' ? '00:00' : $b[$key])) {
+            $identical = FALSE;
+          }
+        }
+        elseif ($key != 'id') { // do not test id value
+          if (key_exists($key, $b) and ($a[$key] != $b[$key])) $identical = false;
+        }
+      }
+      return $identical;
+    }
 
   /**
    * @inheritDoc
@@ -52,6 +87,9 @@ class EzacStartsUploadProcessForm extends \Drupal\Core\Form\FormBase {
 
     $starts = [];
 
+    // prepare list of datums
+    $datums = [];
+
     // read table headers
     $header = fgetcsv($file, 0,';','"');
     // process records
@@ -69,59 +107,68 @@ class EzacStartsUploadProcessForm extends \Drupal\Core\Form\FormBase {
       $opmerking = $s[11];
       $methode = $s[12];
       */
-      // key [][0] is the record from the logfile, following numbers are from the database when duplicates exist
       // build array of header columns and record values
-      $starts[][0] = array_combine($header, $s);
+      $start_rec = array_combine($header, $s);
+      // add id field
+      if (!key_exists('id',$start_rec)) $start_rec['id'] = 0;
+      // convert datum from DD-MM-YYYY to YYYY-MM-DD
+      $datum = substr($start_rec['datum'],6,4) .'-'
+        .substr($start_rec['datum'],3,2) .'-'
+        .substr($start_rec['datum'],0,2);
+      $start_rec['datum'] = $datum;
+      // store datum in datums
+      if (!key_exists($datum, $datums)) $datums = array_merge($datums, array($datum));
+      // use afkorting if available
+      if ($start_rec['gezagvoerder_id'] != '') $start_rec['gezagvoerder'] = $start_rec['gezagvoerder_id'];
+      if ($start_rec['tweede_id'] != '') $start_rec['tweede'] = $start_rec['tweede_id'];
+      // make instructie flag boolean
+      $start_rec['instructie'] = ($start_rec['instructie'] == 'J'? 1: 0);
+      // store start_rec in starts
+      $starts[] = $start_rec;
     }
     fclose($file);
 
-    // verify records with database
-    // - read matching records
+    // read corresponding records from database
+    $condition = [
+      'datum' => [
+        'value' => $datums,
+        'operator' => 'IN'
+      ],
+    ];
+    $ids = EzacStart::index($condition);
+    foreach ($ids as $id) {
+      $start_rec = new EzacStart($id);
+      // reduce times to HH:MM format (skip :SS)
+      $start_rec->start = substr($start_rec->start,0,5);
+      $start_rec->landing = substr($start_rec->landing,0,5);
+      $start_rec->duur = substr($start_rec->duur,0,5);
+      $starts[] = (array) $start_rec;
+    }
+
+    // sort $starts on datum, tijd, registratie
+    usort($starts, "self::start_sort");
+
+    // remove duplicate entries (id == 0 indicates record from logfile)
+    foreach ($starts as $i => $start_rec) {
+      if ($i == 0) {
+        $prev = $start_rec;
+      }
+      else {
+        if (self::identical($prev, $start_rec)) {
+          // remove starts
+          unset($starts[$i-1], $starts[$i]);
+          // prev does not need refreshing
+        }
+        else {
+          $prev = $start_rec;
+        }
+      }
+    }
+
+
+    // prepare table
     foreach ($starts as $i => $s) {
-      // convert datum from DD-MM-YYYY to YYYY-MM-DD
-      $datum = substr($s[0]['datum'],6,4) .'-'
-        .substr($s[0]['datum'],3,2) .'-'
-        .substr($s[0]['datum'],0,2);
-      $s[0]['datum'] = $datum;
-      $condition = [
-        'datum' => $datum,
-        'registratie' => $s[0]['registratie'],
-        'start' => $s[0]['start'], // when start is empty?
-      ];
-      $ids = EzacStart::index($condition);
-
-      // - check for duplicates or insert
-      // if no value in ids, we have a new start to put in database
-      if (count($ids) == 0) {
-        $starts[$i][0]['op'] = 'create';
-      }
-
-      // if one value in ids, check record with $s for update or change
-      if (count($ids) == 1) {
-        $s_db = array(new EzacStart($ids[0]));
-        // check values in $s_db for match with $s
-        $identical = TRUE;
-        foreach ($s_db as $key => $value) {
-          if ($value != $s[0][$key]) $identical = FALSE;
-        }
-        if (!$identical) {
-          //  mark record in starts table for user verification if values are not identical
-          // user must select which record remains id put in database
-          $s_db['op'] = 'select';
-          $starts[$i][] = $s_db;
-        }
-        // if identical, the $s record can be ignored for idempotency
-      }
-
-      // if more than one value in ids, put each in the table for selecting or editing
-      if (count($ids) > 1) {
-        foreach ($ids as $id) {
-          $s_db = array(new EzacStart($id));
-          // user must select which record remains in database
-          $s_db['op'] = 'select';
-          $starts[$i][] = $s_db;
-        }
-      }
+      $starts[$i]['op'] = 'select';
     }
 
     // store $starts for submit
@@ -129,8 +176,6 @@ class EzacStartsUploadProcessForm extends \Drupal\Core\Form\FormBase {
       '#type' => 'value',
       '#value' => $starts,
     ];
-
-    // @todo verify table operations
 
     $header = [
       'datum',
@@ -160,30 +205,24 @@ class EzacStartsUploadProcessForm extends \Drupal\Core\Form\FormBase {
       '#sticky' => TRUE,
     ];
     foreach ($starts as $i => $s) {
-      // index [0] = record from upload_file
-      // possible further indexes are duplicates from database for selection
       // in each record, ['op'] indicates operation: select | create
-      // @todo build form elements for each line: create | select | delete
-      foreach ($s as $j => $start) {
-        $form['table'][$i] = [
-          ['#plain_text' => $start['datum']],
-          ['#plain_text' => $start['start']],
-          ['#plain_text' => $start['landing']],
-          ['#plain_text' => $start['soort']],
-          ['#plain_text' => $start['registratie']],
-          ['#plain_text' => $start['gezagvoerder']],
-          ['#plain_text' => $start['tweede']],
-          ['#plain_text' => $start['instructie']],
-          ['#plain_text' => $start['opmerking']],
-          ['#plain_text' => $start['methode']],
-          [
-            '#type' => 'select',
-            '#options' => $options,
-            '#default_value' => $start['op'],
-            'j' => $j
-          ],
-        ];
-      }
+      $form['table'][$i] = [
+        ['#plain_text' => $s['datum']],
+        ['#plain_text' => $s['start']],
+        ['#plain_text' => $s['landing']],
+        ['#plain_text' => $s['soort']],
+        ['#plain_text' => $s['registratie']],
+        ['#plain_text' => $s['gezagvoerder']],
+        ['#plain_text' => $s['tweede']],
+        ['#plain_text' => $s['instructie']],
+        ['#plain_text' => $s['opmerking']],
+        ['#plain_text' => $s['methode']],
+        [
+          '#type' => 'select',
+          '#options' => $options,
+          '#default_value' => $s['op'],
+        ],
+      ];
     }
     $form['submit_upload'] = array(
       '#type'  =>  'submit',
@@ -210,20 +249,18 @@ class EzacStartsUploadProcessForm extends \Drupal\Core\Form\FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $messenger = Drupal::messenger();
-    // TODO: Implement submitForm() method.
     // parse $form['starts'] and update records where applicable
     $starts = $form_state->getValue('starts');
     $table = $form_state->getValue('table');
     $created = 0;
     $deleted = 0;
     foreach ($table as $i => $row) {
-      $j = $row['j']; //@todo $row == 10 => 'create'
-      $starts[$i][$j]['op'] = $table[$i][10]; //@todo replace 10
+      $starts[$i]['op'] = array_pop($row); //get first element
     }
-    foreach ($starts as $i => $s_array) {
-      foreach ($s_array as $j => $s) {
-        switch ($s['op']) {
-          case 'create':
+    foreach ($starts as $i => $s) {
+      switch ($s['op']) {
+        case 'select':
+          if ($s['id'] == 0) {
             $start = new EzacStart();
             // copy all fields from logfile entry
             foreach ($start as $key => $value) {
@@ -231,32 +268,33 @@ class EzacStartsUploadProcessForm extends \Drupal\Core\Form\FormBase {
                 $start->$key = $s[$key];
               }
             }
+            // override gezagvoerder and tweede with afkorting if available
+            if (isset($s['gezagvoerder_id'])) $start->gezagvoerder = $s['gezagvoerder_id'];
+            if (isset($s['tweede_id'])) $start->tweede = $s['tweede_id'];
             // update starts table
             $id = $start->create();
-            $created++;
-            break;
-          case 'select':
-            break;
-          case 'delete':
-            $start = new EzacStart(($s['id']));
-            if ($start->id != NULL) {
-              $nr = $start->delete();
-              if ($nr == 0) {
-                $messenger->addError("record $start->id niet verwijderd");
-              }
-              else {
-                $deleted++;
-              }
+            if ($id) $created++;
+            else $messenger->addError("record $i niet aangemaakt");
+          }
+          break;
+        case 'delete':
+          $start = new EzacStart(($s['id']));
+          if ($start->id != NULL) {
+            $nr = $start->delete();
+            if ($nr == 0) {
+              $messenger->addError("record $start->id niet verwijderd");
             }
-            break;
-          case 'ignore':
-            break;
-        }
+            else {
+              $deleted++;
+            }
+          }
+          break;
+        case 'ignore':
+          break;
       }
     }
 
     $messenger->addMessage("Bestand verwerkt: $created records toegevoegd, $deleted records verwijderd");
-
   }
 
 }
