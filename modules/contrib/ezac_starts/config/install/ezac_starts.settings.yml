@@ -10,3 +10,18 @@ startmethode:
   'M': motor
   'S': sleep
   'B': bungee
+
+logfile:
+  'id': id
+  'datum': datum
+  'registratie': registratie
+  'start': start
+  'landing': landing
+  'soort': soort
+  'gezagvoerder': piloot
+  'gezagvoerder_id': piloot_id
+  'tweede': tweede
+  'tweede_id': tweede_id
+  'opmerking': opmerking
+  'startmethode': startmethode
+  'instructie': instructie

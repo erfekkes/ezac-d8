@@ -269,8 +269,7 @@ class EzacVbaCurrencyForm extends FormBase {
       $urlString = Url::fromRoute(
         'ezac_starts_overzicht_lid',  // show starts
         [
-          'datum_start' => $datum_start,
-          'datum_eind' => $datum_eind,
+          'datum' => "$datum_start:$datum_eind",
           'vlieger' => $person,
         ]
       )->toString();

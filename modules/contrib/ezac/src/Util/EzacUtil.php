@@ -90,7 +90,11 @@ class EzacUtil {
         //'code' => ['VL'],
       ];
     }
-    $ledenIndex = EzacLid::index($condition, 'id', 'achternaam');
+    $sortkey = [
+      ['#key' => 'voornaam'],
+      ['#key' => 'achternaam'],
+    ];
+    $ledenIndex = EzacLid::index($condition, 'id', $sortkey);
     $leden = [];
     $leden[''] = "Onbekend";
     foreach ($ledenIndex as $id) {

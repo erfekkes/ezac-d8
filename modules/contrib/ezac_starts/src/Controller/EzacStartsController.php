@@ -203,14 +203,13 @@ class EzacStartsController extends ControllerBase {
     // lees volledige ledenlijst
     $leden = EzacUtil::getLeden();
 
-    //@todo maak overzicht van totalen
     $d = EzacUtil::showDate($datum_start);
     $intro = "<h2>Starts van $d";
     if (isset($datum_eind) and $datum_eind != $datum_start) {
       $d = EzacUtil::showDate($datum_eind);
       $intro .= " tot $d";
     }
-    if (isset($vlieger)) {
+    if (isset($vlieger) and ($vlieger != null)) {
       $intro .= " voor $leden[$vlieger]";
     }
     $intro .= "</h2>";
@@ -234,7 +233,7 @@ class EzacStartsController extends ControllerBase {
     }
     else $condition = ['datum' => $datum_start];
 
-    if (isset($vlieger)) {
+    if (isset($vlieger) and ($vlieger != null)) {
       // add orGroup to selection
       $condition['OR'] =
         [
@@ -357,7 +356,13 @@ class EzacStartsController extends ControllerBase {
           : 1;
 
       $duur_hhmm = explode(':', $start->duur);
-      $duur_minuten = $duur_hhmm[0] * 60 + $duur_hhmm[1];
+      if (key_exists(1, $duur_hhmm)) {
+        $duur_minuten = $duur_hhmm[0] * 60 + $duur_hhmm[1];
+      }
+      else {
+        $duur_minuten = 0;
+
+      }
 
       $kist[$registratie] = [
         'aantal' =>

@@ -423,7 +423,7 @@ class EzacStartsUpdateForm extends FormBase {
 
       //check gezagvoerder_onbekend, tweede_onbekend, registratie_onbekend
       if (($start->gezagvoerder == '') && $form_state->getValue('gezagvoerder_onbekend') != '')
-        $start->gezagvoerder = $form_state->getValue('gezagvoerer_onbekend');
+        $start->gezagvoerder = $form_state->getValue('gezagvoerder_onbekend');
       if (($start->tweede == '') && $form_state->getValue('tweede_onbekend') != '')
         $start->tweede = $form_state->getValue('tweede_onbekend');
       if (($start->registratie == '') && $form_state->getValue('registratie_onbekend') != '')

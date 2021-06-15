@@ -19,3 +19,16 @@ ezac_starts.invoer:
   description: EZAC starts invoer
   parent: ezac_starts
   #weight: 03.6
+
+ezac_starts.lijstinvoer:
+  title: 'Invoer startlijst'
+  route_name: ezac_starts_lijstinvoer
+  description: EZAC startlijst invoer
+  parent: ezac_starts
+  #weight: 03.7
+
+ezac_starts.upload:
+  title: 'Upload starts logfile'
+  route_name: ezac_starts_upload_form
+  description: 'EZAC starts upload tablet logfile'
+  parent: ezac_starts

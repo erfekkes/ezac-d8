@@ -48,7 +48,7 @@ class EzacVbaController extends ControllerBase {
     $dagverslagIndex = EzacVbaDagverslag::index($condition);
 
     //lees dagverslagLid index
-    $dagverslagLidIndex = EzacVbaDagverslagLid::index(($condition));
+    $dagverslagLidIndex = EzacVbaDagverslagLid::index($condition);
 
     // lees bevoegdheidLid index
     $condition = [
@@ -66,8 +66,12 @@ class EzacVbaController extends ControllerBase {
     $rows = [];
 
     // check permission for update
+    //@todo only amend own dagverslag
     $permission_update_all = Drupal::currentUser()
       ->hasPermission('EZAC_update_all');
+
+    // initialize overzicht
+    $overzicht = [];
 
     foreach ($dagverslagIndex as $id) {
       $dagverslag = new EzacVbaDagverslag($id);
@@ -123,7 +127,6 @@ class EzacVbaController extends ControllerBase {
             $verslag,
           ];
         }
-      } // foreach
       if (isset($ovz['dagverslag_lid'])) {
         foreach ($ovz['dagverslag_lid'] as $id => $verslag) {
           $rows[] = [
@@ -140,6 +143,7 @@ class EzacVbaController extends ControllerBase {
           ];
         }
       }
+      } // foreach
     }
 
     // define table for output
