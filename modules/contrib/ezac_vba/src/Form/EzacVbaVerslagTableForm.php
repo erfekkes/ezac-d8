@@ -531,24 +531,24 @@ class EzacVbaVerslagTableForm extends FormBase {
       foreach ($dagverslagenIndex as $id) {
         $dagverslag = new EzacVbaDagverslag($id);
         $mail_instructeur = $leden[$dagverslag->instructeur];
-        $message .= "<p><h1>Verslag van $mail_instructeur</h1></p>/r/n";
-        $message .= "<p><h2>Omstandigheden</h2></p>/r/n";
-        $message .= "<p>" . $dagverslag->weer . "</p>/r/n";
+        $message .= "<p><h1>Verslag van $mail_instructeur</h1></p>";
+        $message .= "<p><h2>Omstandigheden</h2></p>";
+        $message .= "<p>" . $dagverslag->weer . "</p>";
         $message .= "<p><h2>Verslag</h2></p>";
-        $message .= "<p>" . $dagverslag->verslag . "</p>/r/n";
+        $message .= "<p>" . $dagverslag->verslag . "</p>";
       }
     }
-
-    $message .= "<p><h2>Opmerkingen per leerling</h2></p>/r/n";
 
     //haal de opmerkingen uit de database ivm los ingevoerde opmerkingen
     $condition = ['datum' => $datum];
     $verslagenIndex = EzacVbaDagverslagLid::index($condition);
     if (count($verslagenIndex)) {
+      $message .= "<p><h2>Opmerkingen per leerling</h2></p>";
       foreach ($verslagenIndex as $id) {
         $verslag = new EzacVbaDagverslagLid($id);
-        $message .= "<p><h3> $leden($verslag->afkorting) </h3></p>/r/n";
-        $message .= "<p> $verslag->verslag </p>/r/n";
+        $naam = $leden[$verslag->afkorting];
+        $message .= "<p><h3>$naam</h3></p>";
+        $message .= "<p> $verslag->verslag </p>";
       }
     }
 
@@ -559,7 +559,7 @@ class EzacVbaVerslagTableForm extends FormBase {
       foreach ($bevoegdhedenIndex as $id) {
         $bevoegdheid = new EzacVbaBevoegdheid($id);
         $message .= "<p> $leden($bevoegdheid->afkorting) : $bevoegdheid->bevoegdheid";
-        $message .= " door instructeur $leden($bevoegdheid->instructeur) </p>/r/n";
+        $message .= " door instructeur $leden($bevoegdheid->instructeur) </p>";
       }
     }
     // verstuur mail

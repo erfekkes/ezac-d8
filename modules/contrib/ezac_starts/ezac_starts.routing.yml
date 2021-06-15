@@ -97,3 +97,21 @@ ezac_starts_export_jaar:
   requirements:
     _permission: 'EZAC_read'
     _user: ^[a-zA-Z0-9_]+
+
+ezac_starts_upload_form:
+  path: '/ezac/starts/upload/form'
+  defaults:
+    _title: 'Starts upload'
+    _form: '\Drupal\ezac_starts\Form\EzacStartsUploadForm'
+  requirements:
+    _permission: 'EZAC_update'
+
+ezac_starts_upload_process_form:
+  path: '/ezac/starts/upload/process/form/{file}'
+  defaults:
+    _title: 'Starts upload'
+    _form: '\Drupal\ezac_starts\Form\EzacStartsUploadProcessForm'
+    fileName: ''
+  requirements:
+    _permission: 'EZAC_update'
+

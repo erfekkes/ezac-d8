@@ -58,7 +58,7 @@ class EzacStartsOverzichtForm extends FormBase {
       '#prefix' => '<div id="startlijst-div">',
       //This section replaced by AJAX callback
       '#suffix' => '</div>',
-      '#tree' => FALSE,
+      '#tree' => false,
     ];
 
     if ($periode == '') {
@@ -85,8 +85,11 @@ class EzacStartsOverzichtForm extends FormBase {
         ],
       ];
 
-      $periode = $form_state->getValue('startlijst')['periode'];
+      $periode = $form_state->getValue('periode');
     }
+
+    // collect raw user input
+    $userInput = $form_state->getUserInput();
 
     switch ($periode) {
       case 'vandaag' :
@@ -117,7 +120,8 @@ class EzacStartsOverzichtForm extends FormBase {
             'progress' => ['type' => 'throbber'],
           ],
         ];
-        $datum_start = $form_state->getValue('datum') ?? array_key_first($dagen);
+
+        $datum_start = (key_exists('datum', $userInput)) ? $userInput['datum'] : array_key_first($dagen);
         if (!isset($datum_start)) $datum_start = date('Y-m-d'); // vandaag
         $datum_eind = $datum_start;
         break;
@@ -141,16 +145,6 @@ class EzacStartsOverzichtForm extends FormBase {
         $datum_start = date('Y-m-d');
         $datum_eind = date('Y-m-d');
     }
-
-    // store datum for callback processing
-    $form['startlijst']['start'] = [
-      '#type' => 'value',
-      '#value' => $datum_start,
-    ];
-    $form['startlijst']['eind'] = [
-      '#type' => 'value',
-      '#value' => $datum_eind,
-    ];
 
     // haal de eigen afkorting op, is leeg indien niet aanwezig
     $eigen_afkorting = EzacUtil::getUser();
@@ -200,7 +194,8 @@ class EzacStartsOverzichtForm extends FormBase {
           ],
         ];
       }
-      $persoon = $form_state->getValue('persoon');
+      //persoon geselecteerd?
+      $persoon = (key_exists('persoon', $userInput)) ? $userInput['persoon'] : key($namen);
     } // permission_read_all
 
     if (!isset($persoon) or (!$permission_read_all)) {
@@ -208,7 +203,7 @@ class EzacStartsOverzichtForm extends FormBase {
       if ($eigen_afkorting != '') {
         $persoon = $eigen_afkorting;
       }
-      else $persoon = key($namen);
+      else $persoon = null; // key($namen)
     }
 
     $details = false;
@@ -235,7 +230,7 @@ class EzacStartsOverzichtForm extends FormBase {
     else $p = ($periode == 'vandaag') ? null : $eigen_afkorting; // toon voor vandaag alle starts
 
     // toon gegevens per vlucht
-    $details = $form_state->getValue('details');
+    $details = (key_exists('details', $userInput)) ? $userInput['details'] : false;
 
     //toon vluchten dit jaar
     $form['startlijst']['starts'] = EzacStartsController::startOverzicht("$datum_start:$datum_eind", $p, $details);
