@@ -95,18 +95,6 @@ class EzacStartsUploadProcessForm extends \Drupal\Core\Form\FormBase {
     // process records
     while (!feof($file)) {
       $s = fgetcsv($file, 0, ';', '"');
-      /*
-      $datum = $s[0];
-      $start = $s[1];
-      $landing = $s[2];
-      $soort = $s[4];
-      $registratie = $s[5];
-      $gezagvoerder = $s[7]; // piloot, piloot_id
-      $tweede = $s[9];
-      $instructie = ($s[10] == 'J');
-      $opmerking = $s[11];
-      $methode = $s[12];
-      */
       // build array of header columns and record values
       $start_rec = array_combine($header, $s);
       // add id field
@@ -193,7 +181,6 @@ class EzacStartsUploadProcessForm extends \Drupal\Core\Form\FormBase {
     $caption = "Starts uit bestand $destination";
     // build selection table from $form['starts']
     $options = [
-      'create' => 'Aanmaken',
       'select' => 'Selecteren',
       'delete' => 'Verwijderen',
       'ignore' => 'Negeer',

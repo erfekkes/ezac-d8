@@ -113,5 +113,5 @@ ezac_starts_upload_process_form:
     _form: '\Drupal\ezac_starts\Form\EzacStartsUploadProcessForm'
     fileName: ''
   requirements:
-    _permission: 'EZAC_update'
+    _permission: 'EZAC_update_all'
 
