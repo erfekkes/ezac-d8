@@ -465,7 +465,7 @@ class EzacVbaVerslagTableForm extends FormBase {
           $message->addMessage('Verslag voor ' . $leden[$afkorting] . ' aangemaakt', 'status');
         }
         //update bevoegdheden per vlieger
-        if (isset($vlieger['bevoegdheid']) && $vlieger['bevoegdheid'] <> 0) {
+        if (isset($vlieger['bevoegdheid']) && $vlieger['bevoegdheid'] <> '0') {
           //Bevoegdheid ingevoerd
           $bevoegdheid = new EzacVbaBevoegdheid();
           $bevoegdheid->bevoegdheid = $vlieger['bevoegdheid'];
