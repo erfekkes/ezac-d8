@@ -167,6 +167,7 @@ class EzacLedenLijstForm extends FormBase {
       ['data' => t('E-mail')],
       ['data' => t('Code')],
     ];
+    $rows = [];
 
     foreach ($ledenIndex as $id) {
       $lid = new EzacLid($id);
