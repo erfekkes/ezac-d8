@@ -91,7 +91,7 @@ class EzacLedenUpdateForm extends FormBase
             $lv = explode('-', $gd);
             $gebdat = sprintf('%s-%s-%s', $lv[2], $lv[1], $lv[0]);
         } else $gebdat = '';
-        $form = EzacUtil::addField($form,'geboortedatum', 'textfield','Geboortedatum', 'Geboortedatum [dd-mm-jjjj]', $gebdat, 10, 10, FALSE, 13);
+        $form = EzacUtil::addField($form,'geboorteda', 'textfield','Geboortedatum', 'Geboortedatum [dd-mm-jjjj]', $gebdat, 10, 10, FALSE, 13);
         //OPMERKING Tekst 27
         $form = EzacUtil::addField($form,'opmerking', 'textfield','Opmerking', 'Opmerking', $lid->opmerking, 27, 27, FALSE, 14);
         //INSTRUCTEU Tekst 9 ** foutief in database **
@@ -103,14 +103,14 @@ class EzacLedenUpdateForm extends FormBase
             $lv = explode('-', $ls);
             $lid_van = sprintf('%s-%s-%s', $lv[2], $lv[1], $lv[0]);
         } else $lid_van = '';
-        $form = EzacUtil::addField($form,'lidvan', 'textfield','Lid vanaf', 'Ingangsdatum lidmaatschap [dd-mm-jjjj]', $lid_van, 10, 10, FALSE, 16);
+        $form = EzacUtil::addField($form,'lid_van', 'textfield','Lid vanaf', 'Ingangsdatum lidmaatschap [dd-mm-jjjj]', $lid_van, 10, 10, FALSE, 16);
         //LID_EIND Datum/tijd 8
         $le = substr($lid->lid_eind, 0, 10);
         if ($le != NULL) {
             $lv = explode('-', $le);
             $lid_eind = sprintf('%s-%s-%s', $lv[2], $lv[1], $lv[0]);
         } else $lid_eind = '';
-        $form = EzacUtil::addField($form,'lideind', 'textfield','Lid einde', 'Datum einde lidmaatschap [dd-mm-jjjj]', $lid_eind, 10, 10, FALSE, 17);
+        $form = EzacUtil::addField($form,'lid_eind', 'textfield','Lid einde', 'Datum einde lidmaatschap [dd-mm-jjjj]', $lid_eind, 10, 10, FALSE, 17);
         // RT license
         $form = EzacUtil::addField($form,'rtlicense', 'checkbox','RT licentie', 'RT bevoegdheid (Ja/nee)', $lid->rtlicense, 1, 1, FALSE, 18);
         //leerling Ja/nee 0
@@ -202,7 +202,7 @@ class EzacLedenUpdateForm extends FormBase
         // Land
         // Code
         // Geboorteda
-        $dat = $form_state->getValue('geboortedatum');
+        $dat = $form_state->getValue('geboorteda');
         if ($dat !== '') {
             $lv = explode('-', $dat);
             if (checkdate($lv[1], $lv[0], $lv[2]) == FALSE) {
@@ -213,7 +213,7 @@ class EzacLedenUpdateForm extends FormBase
         // Instructeu
         // Actief
         // Lid_van
-        $dat = $form_state->getValue('lidvan');
+        $dat = $form_state->getValue('lid_van');
         if ($dat !== '') {
             $lv = explode('-', $dat);
             if (checkdate($lv[1], $lv[0], $lv[2]) == FALSE) {
@@ -222,7 +222,7 @@ class EzacLedenUpdateForm extends FormBase
         }
 
         // Lid_eind
-        $dat = $form_state->getValue('lideind');
+        $dat = $form_state->getValue('lid_eind');
         if ($dat !== '') {
             $lv = explode('-', $dat);
             if (checkdate($lv[1], $lv[0], $lv[2]) == FALSE) {
@@ -242,6 +242,18 @@ class EzacLedenUpdateForm extends FormBase
         // Mutatie
         // KenEZACvan
     }
+
+  /**
+   * change datum from DD-MM-JJJJ to YYYY-MM-DD unix format
+   * @param $datum
+   *
+   * @return string
+   */
+  private function swap_datum($datum) {
+    $d = explode('-', $datum);
+    if (key_exists(2, $d)) return $d[2] .'-' .$d[1] .'-' .$d[0];
+    else return null;
+  }
 
     /**
      * {@inheritdoc}
@@ -268,6 +280,11 @@ class EzacLedenUpdateForm extends FormBase
             foreach (EzacLid::$fields as $field => $description) {
                 $lid->$field = $form_state->getValue($field);
             }
+          //datum velden omzetten van DD-MM-JJJJ naar YYYY-MM-DD
+          $lid->lid_van = self::swap_datum($lid->lid_van);
+          $lid->lid_eind = self::swap_datum($lid->lid_eind);
+          $lid->geboorteda = self::swap_datum($lid->geboorteda);
+
             //Check value newRecord to select insert or update
             if ($form_state->getValue('new') == TRUE) {
                 $id = $lid->create(); // add record in database
