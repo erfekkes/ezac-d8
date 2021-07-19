@@ -150,7 +150,7 @@ class EzacStartsOverzichtForm extends FormBase {
     $eigen_afkorting = EzacUtil::getUser();
 
     //check permission EZAC_read_all voor selectie, anders alleen eigen starts te selecteren
-    $permission_read_all = Drupal::currentUser()->hasPermission('EZAC_read_all');
+    $permission_read_all = Drupal::currentUser()->hasPermission('EZAC_starts_edit'); // was EZAC_read_all
     if ($permission_read_all) {
 
       // Kies gewenste vlieger voor overzicht dagverslagen
