@@ -95,6 +95,7 @@ class EzacStartsUploadProcessForm extends \Drupal\Core\Form\FormBase {
     // process records
     while (!feof($file)) {
       $s = fgetcsv($file, 0, ';', '"');
+      $s = str_replace('null',null,$s); // remove 'null' values
       // build array of header columns and record values
       $start_rec = array_combine($header, $s);
       // add id field
@@ -252,12 +253,14 @@ class EzacStartsUploadProcessForm extends \Drupal\Core\Form\FormBase {
             // copy all fields from logfile entry
             foreach ($start as $key => $value) {
               if (key_exists($key, $s)) {
-                $start->$key = $s[$key];
+                // change 'null' to null, if required
+                $start->$key = ($s[$key] != 'null') ? $s[$key] : null;
               }
             }
             // override gezagvoerder and tweede with afkorting if available
-            if (isset($s['gezagvoerder_id'])) $start->gezagvoerder = $s['gezagvoerder_id'];
-            if (isset($s['tweede_id'])) $start->tweede = $s['tweede_id'];
+            //@todo bij lege ID waarde wordt naam niet overgenomen (Dirk Hamerlynck)
+            if (isset($s['gezagvoerder_id']) and $s['gezagvoerder_id' != '']) $start->gezagvoerder = $s['gezagvoerder_id'];
+            if (isset($s['tweede_id']) and $s['tweede_id'] != '') $start->tweede = $s['tweede_id'];
             // update starts table
             $id = $start->create();
             if ($id) $created++;

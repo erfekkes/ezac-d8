@@ -21,7 +21,8 @@ slots:
     zondag: 0
 
 texts:
-  mededeling: '<h1>Momenteel is meevliegen helaas niet mogelijk</h1>'
+  mededeling: '<h1>Vanaf 5 september kan er weer worden meegevlogen</h1>
+  Vooralsnog is het gebruik van een mondkapje daarbij verplicht'
   kies_dag: '<p><h2>Kies een dag en tijd</h2>'
   advies: '<p>Elke reservering geldt voor <strong>EEN (1)</strong> persoon
   Indien meerdere personen willen meevliegen, dient voor iedere persoon

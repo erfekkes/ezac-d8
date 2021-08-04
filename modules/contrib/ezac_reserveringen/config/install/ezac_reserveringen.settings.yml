@@ -72,6 +72,10 @@ reservering:
         naam: 'Kader'
         capaciteit: 10
         aantal: 1
+      Passagiers:
+        naam: 'Passagiersvlieger'
+        capaciteit: 8
+        aantal: 1
 
     werken:
       Gebouwen:
