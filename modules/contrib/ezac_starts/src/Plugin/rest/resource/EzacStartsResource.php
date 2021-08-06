@@ -70,7 +70,7 @@ class EzacStartsResource extends ResourceBase {
     }
 
     //parse $datum
-    if (!isset($datum) or $datum == NULL) {
+    if (!isset($datum) or $datum == '') {
       $datum = date('Y-m-d'); // defaults to today
     }
     //if $datum is a range, split and process

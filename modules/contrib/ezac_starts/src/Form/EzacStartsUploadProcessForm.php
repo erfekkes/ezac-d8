@@ -100,16 +100,22 @@ class EzacStartsUploadProcessForm extends \Drupal\Core\Form\FormBase {
       $start_rec = array_combine($header, $s);
       // add id field
       if (!key_exists('id',$start_rec)) $start_rec['id'] = 0;
-      // convert datum from DD-MM-YYYY to YYYY-MM-DD
-      $datum = substr($start_rec['datum'],6,4) .'-'
-        .substr($start_rec['datum'],3,2) .'-'
-        .substr($start_rec['datum'],0,2);
+      // convert datum from DD-MM-YYYY to YYYY-MM-DD and pad leading zeroes
+      $d = explode('-', $start_rec['datum']);
+      if (strlen($d[2]) == 4) { // format = DD-MM-YYYY
+        $datum = sprintf('%3$04d-%2$02d-%1$02d', $d[0], $d[1], $d[2]);
+      }
+      else { // format = YYYY-MM-DD
+        $datum = sprintf('%1$04d-%2$02d-%3$02d', $d[0], $d[1], $d[2]);
+      }
       $start_rec['datum'] = $datum;
       // store datum in datums
       if (!key_exists($datum, $datums)) $datums = array_merge($datums, array($datum));
       // use afkorting if available
       if ($start_rec['gezagvoerder_id'] != '') $start_rec['gezagvoerder'] = $start_rec['gezagvoerder_id'];
+      else $start_rec['gezagvoerder'] = substr($start_rec['gezagvoerder'],0,20);
       if ($start_rec['tweede_id'] != '') $start_rec['tweede'] = $start_rec['tweede_id'];
+      else $start_rec['tweede'] = substr($start_rec['tweede'],0,20);
       // make instructie flag boolean
       $start_rec['instructie'] = ($start_rec['instructie'] == 'J'? 1: 0);
       // store start_rec in starts
