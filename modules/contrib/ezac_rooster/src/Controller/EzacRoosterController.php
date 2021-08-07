@@ -273,8 +273,8 @@ class EzacRoosterController extends ControllerBase {
     $from = null;
     $range = null;
     $field = 'datum';
-    $sortkey = null;
-    $sortdir = null;
+    $sortkey = 'datum';
+    $sortdir = 'ASC';
     $unique = TRUE; // return unique results only
 
     // bepaal aantal dagen
