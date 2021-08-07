@@ -23,7 +23,7 @@ class EzacLedenExportController extends ControllerBase {
    * @return mixed Response output text in csv format
    *   output text in csv format
    */
-  public function leden($filename = 'ezac.txt', $code = NULL) {
+  public function leden($filename = 'ezac.txt', $code = NULL, $actief = true) {
 
     if ($filename == '') {
       $filename = "ezac-$code.txt";
@@ -33,11 +33,11 @@ class EzacLedenExportController extends ControllerBase {
     if (isset($code)) {
       $condition = [
         'code' => $code,
-        'actief' => TRUE,
+        'actief' => $actief,
       ];
     }
     else {
-      $condition = ['actief' => TRUE];
+      $condition = ['actief' => $actief];
     } //select all active records
 
     $records = EzacLid::index($condition); //read records index

@@ -15,10 +15,12 @@ ezac_leden_overzicht:
     _permission: 'EZAC_leden_read'
 
 ezac_leden_overzicht_code:
-  path: '/ezac/leden/overzicht/{code}'
+  path: '/ezac/leden/overzicht/{code}/{actief}'
   defaults:
     _title: 'Ledenoverzicht'
     _controller: '\Drupal\ezac_leden\Controller\EzacLedenController::overzicht'
+    code: null
+    actief: 1
   requirements:
     _permission: 'EZAC_leden_read'
     _user: ^[a-zA-Z0-9_]+
@@ -77,10 +79,11 @@ ezac_leden_export:
     _permission: 'EZAC_leden_read'
 
 ezac_leden_export_code:
-  path: '/ezac/leden/export/{filename}/{code}'
+  path: '/ezac/leden/export/{filename}/{code}/{actief}'
   defaults:
     _title: 'Leden export'
     _controller: '\Drupal\ezac_leden\Controller\EzacLedenExportController::leden'
+    actief: 1
   requirements:
     _permission: 'EZAC_leden_read'
 

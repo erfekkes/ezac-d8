@@ -5,6 +5,7 @@ namespace Drupal\ezac_starts\Plugin\rest\resource;
 
 use DateTime;
 use Drupal;
+use Drupal\ezac_kisten\Model\EzacKist;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
@@ -204,6 +205,14 @@ class EzacStartsResource extends ResourceBase {
       throw new BadRequestHttpException('No registratie parameter provided');
     }
 
+    // lees kist informatie
+    $id = EzacKist::getId($registratie);
+    if ($id != null) {
+      $kist = new EzacKist($id);
+      $tweezitter = ($kist->inzittenden == 2);
+    }
+    else $tweezitter = true;
+
     // gezagvoerder
     if (isset($gezagvoerder)) {
       $start_record->gezagvoerder = substr($gezagvoerder, 0, 20);
@@ -214,8 +223,10 @@ class EzacStartsResource extends ResourceBase {
 
     // tweede
     if (isset($tweede)) {
-      $start_record->tweede = substr($tweede, 0, 20);
+      //check op tweezitter
+      if ($tweezitter) $start_record->tweede = substr($tweede, 0, 20);
     }
+
     // soort
     if (isset($soort) && $soort != '') {
       if (!array_key_exists($soort, EzacStart::$startSoort)) {

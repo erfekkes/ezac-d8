@@ -31,22 +31,26 @@ class EzacLedenController extends ControllerBase {
       t("Aantal"), 
       t("Uitvoer"),
     ];
-    
+
+
     $total = 0;
+    $actief = 1;
     foreach (EzacLid::$lidCode as $code => $description) {
-      $count = EzacLid::counter(['code' => $code, 'actief' => TRUE]);
+      $count = EzacLid::counter(['code' => $code, 'actief' => $actief]);
       $total = $total+$count;
       $urlCode = Url::fromRoute(
         'ezac_leden_overzicht_code',
         [
-          'code' => $code
+          'code' => $code,
+          'actief' => $actief,
         ]
       )->toString();
       $urlExport = Url::fromRoute(
         'ezac_leden_export_code',
         [
           'filename' => "Leden-$code.csv",
-          'code' => $code
+          'code' => $code,
+          'actief' => $actief,
         ]
       )->toString();
       $rows[] = [
@@ -71,15 +75,68 @@ class EzacLedenController extends ControllerBase {
       t("<a href=$urlExport>Leden.csv</a>"),
     ];
     //build table
-    $content['table'] = [
+    $content['table-actief'] = [
       '#type' => 'table',
-      '#caption' => t("Categorie overzicht van het EZAC LEDEN bestand"),
+      '#caption' => t("Categorie overzicht van het EZAC LEDEN bestand - ACTIEF"),
       '#header' => $headers,
       '#rows' => $rows,
       '#empty' => t('Geen gegevens beschikbaar.'),
       '#sticky' => TRUE,
     ];
-    
+
+    // niet actieve leden
+    $rows = [];
+    $total = 0;
+    $actief = 0;
+    foreach (EzacLid::$lidCode as $code => $description) {
+      $count = EzacLid::counter(['code' => $code, 'actief' => $actief]);
+      $total = $total+$count;
+      $urlCode = Url::fromRoute(
+        'ezac_leden_overzicht_code',
+        [
+          'code' => $code,
+          'actief' => $actief,
+        ]
+      )->toString();
+      $urlExport = Url::fromRoute(
+        'ezac_leden_export_code',
+        [
+          'filename' => "Leden-$code.csv",
+          'code' => $code,
+          'actief' => $actief,
+        ]
+      )->toString();
+      $rows[] = [
+        t("<a href=$urlCode>$description</a>"),
+        $count,
+        t("<a href=$urlExport>Leden-$code.csv</a>"),
+      ];
+    }
+    // add line for totals
+    $urlCode = Url::fromRoute(
+      'ezac_leden_overzicht'
+    )->toString();
+    $urlExport = Url::fromRoute(
+      'ezac_leden_export',
+      [
+        'filename' => "Leden.csv",
+      ]
+    )->toString();
+    $rows[]= [
+      t("<a href=$urlCode>Totaal</a>"),
+      $total,
+      t("<a href=$urlExport>Leden.csv</a>"),
+    ];
+    //build table
+    $content['table-niet-actief'] = [
+      '#type' => 'table',
+      '#caption' => t("Categorie overzicht van het EZAC LEDEN bestand - NIET actief"),
+      '#header' => $headers,
+      '#rows' => $rows,
+      '#empty' => t('Geen gegevens beschikbaar.'),
+      '#sticky' => TRUE,
+    ];
+
     //toon functie om user-ids voor de EZAC website aan te maken
     /*
     $urlCreate = Url::fromRoute(
@@ -103,7 +160,7 @@ class EzacLedenController extends ControllerBase {
      *  $code - categorie (optional)
      * @return array
      */
-  public function overzicht($code = NULL) {
+  public function overzicht($code = NULL, $actief = true) {
     $content = array();
 
     $rows = [];
@@ -121,17 +178,17 @@ class EzacLedenController extends ControllerBase {
       $condition =
         [
           'code' => $code,
-          'actief' => TRUE
+          'actief' => $actief
         ];
     }
-    else $condition = ['actief' => TRUE];
+    else $condition = ['actief' => $actief];
     
     // prepare pager
     $total = EzacLid::counter($condition);
     $field = 'id';
     $sortkey = 'achternaam';
     $sortdir = 'ASC';
-    $range = 50;
+    $range = 100;
     //$page = pager_default_initialize($total, $range);
     $pager = \Drupal::service('pager.manager')
       ->createPager($total, $range);
