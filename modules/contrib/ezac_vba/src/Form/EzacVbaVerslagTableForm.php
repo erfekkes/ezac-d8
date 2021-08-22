@@ -558,8 +558,10 @@ class EzacVbaVerslagTableForm extends FormBase {
       $message .= "<p><h2>Bevoegdheden toegekend per leerling</h2></p>";
       foreach ($bevoegdhedenIndex as $id) {
         $bevoegdheid = new EzacVbaBevoegdheid($id);
-        $message .= "<p> $leden($bevoegdheid->afkorting) : $bevoegdheid->bevoegdheid";
-        $message .= " door instructeur $leden($bevoegdheid->instructeur) </p>";
+        $afk = $bevoegdheid->afkorting;
+        $instr = $bevoegdheid->instructeur;
+        $message .= "<p> $leden[$afk] : $bevoegdheid->bevoegdheid";
+        $message .= " door instructeur $leden[$instr] </p>";
       }
     }
     // verstuur mail

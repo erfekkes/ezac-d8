@@ -52,6 +52,7 @@ class EzacVbaBevoegdheid extends EzacStorage
             $this->id = $id;
             $this->ezacRead('vba_bevoegdheden');
         }
+        return $this;
     }
 
     /**
