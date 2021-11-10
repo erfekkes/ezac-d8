@@ -23,7 +23,7 @@ ezac_starts_rapport:
     _controller: '\Drupal\ezac_starts\Controller\EzacStartsRapportController::startRapport'
     datum: ''
   requirements:
-    _permission: 'EZAC_read'
+    _permission: 'EZAC_read_all'
     _user: ^[a-zA-Z0-9_]+
 
 ezac_starts_startlijst:
