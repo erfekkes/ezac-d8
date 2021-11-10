@@ -1,7 +1,8 @@
 langcode: 'nl'
 
 reservering:
-  mededeling: '<h2>Je kunt per periode een reservering doen</h2>'
+  mededeling: '<h2>Je kunt per periode een reservering doen</h2>
+  De DDT is wegens onderhoud niet meer beschikbaar'
 
   periodes:
     A: 'ochtend'
@@ -42,7 +43,7 @@ reservering:
         #aantal per boeking
       DDT:
         naam: 'Duo Discus'
-        capaciteit: 3
+        capaciteit: 0
         #starts per periode
         aantal: 1
         #aantal per boeking

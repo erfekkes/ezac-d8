@@ -21,3 +21,8 @@ ezac_starts.startlijst.tweejaar:
   route_parameters: { periode: 'tweejaar' }
   title: '24 maanden'
   base_route: ezac_starts.startlijst
+
+ezac_starts.startlijst.rapport:
+  route_name: ezac_starts_rapport
+  title: 'Rapportage dit seizoen'
+  base_route: ezac_starts.startlijst

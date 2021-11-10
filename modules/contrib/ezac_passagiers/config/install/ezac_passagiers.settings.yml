@@ -40,6 +40,7 @@ texts:
   verwijder_waarschuwing: 'Verwijder de reservering alleen als de passagier is geinformeerd'
   voeg_toe: 'Voeg toe'
   datum_reeks: 'Maak datum reeks aan'
+  slot_bezet: 'Deze tijd is helaas niet meer beschikbaar'
 
 parameters:
   #seconden waarbinnen bevestigd moet worden

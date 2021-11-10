@@ -16,6 +16,16 @@ ezac_starts_overzicht:
     _permission: 'EZAC_read'
     _user: ^[a-zA-Z0-9_]+
 
+ezac_starts_rapport:
+  path: '/ezac/starts/rapport/{datum}'
+  defaults:
+    _title: 'Start rapportage'
+    _controller: '\Drupal\ezac_starts\Controller\EzacStartsRapportController::startRapport'
+    datum: ''
+  requirements:
+    _permission: 'EZAC_read'
+    _user: ^[a-zA-Z0-9_]+
+
 ezac_starts_startlijst:
   path: '/ezac/starts/startlijst/{periode}'
   defaults:

@@ -60,7 +60,17 @@ class EzacPassagiersController extends ControllerBase {
       ],
     ];
     $rows = [];
-    $resIndex = EzacPassagier::index($condition);
+    $sort = [
+      [
+        '#key' => 'datum',
+        '#dir' => 'ASC',
+      ],
+      [
+        '#key' => 'tijd',
+        '#dir' => 'ASC',
+      ],
+    ];
+    $resIndex = EzacPassagier::index($condition); // @TODO add $sort
     foreach ($resIndex as $id) {
       $passagier = new EzacPassagier($id);
       // add link for delete for own or all passagiers

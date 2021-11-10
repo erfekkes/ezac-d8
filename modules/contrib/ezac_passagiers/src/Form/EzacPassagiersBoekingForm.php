@@ -182,7 +182,6 @@ class EzacPassagiersBoekingForm extends FormBase {
     $texts = $settings->get('texts');
     $parameters = $settings->get('parameters');
 
-    // start D7 code
     // vastleggen reservering
     $naam = $form_state->getValue('naam');
     $telefoon = $form_state->getValue('telefoon');
@@ -200,6 +199,19 @@ class EzacPassagiersBoekingForm extends FormBase {
     else {
       $status = $parameters['reservering_optie']; 
       // indien door gast ingegeven is bevestiging wel nodig
+    }
+
+    // check of slot nog vrij is
+    $condition = [
+      'datum' => $datum,
+      'tijd' => $tijd,
+    ];
+    $resIndex = EzacPassagier::index($condition);
+    if (count($resIndex) != 0) {
+      // slot is niet vrij
+      $messenger->addError($texts['slot_bezet']);
+      $form_state->setRedirect('ezac_passagiers_reservering');
+      return;
     }
 
     $passagier = new EzacPassagier();

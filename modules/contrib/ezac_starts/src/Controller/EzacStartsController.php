@@ -274,8 +274,8 @@ class EzacStartsController extends ControllerBase {
     $sortdir = 'ASC'; // deprecated
 
     if ($detail) {
-      // @todo pager werkt niet goed, error bij display 2e pagina
-      $limit = 100; // set only when details requested
+      // @todo pager werkt niet goed, error bij display 2e pagina bij limit = 100 (memory overrun)
+      $limit = 200; // set only when details requested
       $pager = Drupal::service('pager.manager')
         ->createPager($total, $limit);
       $page = $pager
@@ -501,23 +501,9 @@ class EzacStartsController extends ControllerBase {
 
     return $content;
   }
-    /**
-     * Render a list of entries in the database.
-     * @param string $datum_start
-     * @param string $datum_eind
-     * @return array
-     */
-    /*
-    public function overzicht($datum_start = NULL, $datum_eind = NULL) {
-      $content = self::startOverzicht($datum_start, $datum_eind, NULL, False);
-      // Don't cache this page.
-      $content['#cache']['max-age'] = 0;
 
-      return $content;
-    } // overzicht
-    */
 
-    /**
+  /**
      * Maak exportbestand uit Starts tabel
      * geformatteerd voor input in bestand (csv)
      * Output via html headers naar attachment
