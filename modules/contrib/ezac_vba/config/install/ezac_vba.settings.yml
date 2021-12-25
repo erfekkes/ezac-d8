@@ -157,6 +157,182 @@ vba:
       status: 2
       instructie: 0
       vervalt: 0
+    '1-1':
+      naam: '1.1 Organisatiestructuur'
+      status: 1
+      instructie: 0
+      vervalt: 0
+    '1-2':
+      naam: '1.2 Veiligheidsregels op het veld - uitkijkprocedure'
+      status: 1
+      instructie: 0
+      vervalt: 0
+    '1-3':
+      naam: '1.3 Veiligheidsregels in de lucht'
+    '1-4':
+      naam: '1.4 Specifieke lokale veiligheidsprocedures'
+    '1-5':
+      naam: '1.5 Veiligheidsregels mbt grondtransport van vliegtuigen'
+    '1-6':
+      naam: '1.6 Noodzakelijke documenten'
+    '1-7':
+      naam: '1.7 Het verloop van een vliegdag'
+    '1-8':
+      naam: '1.8 Het verloop van de opleiding'
+    '2-1':
+      naam: '2.1 Procedure aanhaken en tiplopen - afbreken start'
+    '2-2':
+      naam: '2.2 Kabels uitrijden'
+    '2-3':
+      naam: '2.3 Tijdschrijven en seinen aan de lier'
+    '2-4':
+      naam: '2.4 Het weer en minimale zichtomstandigheden'
+    '2-5':
+      naam: '2.5 I m Safe'
+    '3-1':
+      naam: '3.1 Karakteristieken van het vliegtuig'
+    '3-2':
+      naam: '3.2 Cockpit, instrumenten en uitrusting'
+    '3-3':
+      naam: '3.3 Stuurorganen, knuppel, pedalen, remkleppen, trim, flaps'
+    '3-4':
+      naam: '3.4 Ontkoppelmechanisme en landingsgestel'
+    '3-5':
+      naam: '3.5 Checks, procedures en controles'
+    '3-6':
+      naam: '3.6 Gebruik radio en transponder'
+    '4-1':
+      naam: '4.1 Gebruik van parachutes'
+    '4-2':
+      naam: '4.2 Te nemen actie'
+    '4-3':
+      naam: '4.3 Uitstapprocedure'
+    '5-1':
+      naam: '5.1 Kennismakingsvlucht - massa en zwaartepunt'
+    '5-2':
+      naam: '5.2 Instappen - riemen - bereikbaarheid stuurorganen'
+    '5-3':
+      naam: '5.3 Cockpit-check'
+    '5-4':
+      naam: '5.4 Lokale kenmerken - oefengebied en sectoren'
+    '5-5':
+      naam: '5.5 Uitwijkregels'
+    '6-1':
+      naam: '6.1 Werking stuurorganen'
+    '7-1':
+      naam: '7.1 Snelheid, horizon en trim'
+    '8-1':
+      naam: '8.1 Demonstratie haak- en neveneffecten'
+    '9-1':
+      naam: '9.1 Rechtuit vliegen'
+    '10-1':
+      naam: '10.1 Normale bochten - uitkijkprocedure - piefje'
+    '11-1':
+      naam: '11.1 Normale lierstart (bovenste deel)'
+    '11-2':
+      naam: '11.2 Ontkoppelprocedure'
+    '12-1':
+      naam: '12.1 Normale lierstart (onderste deel)'
+    '12-2':
+      naam: '12.2 Liertekens bij te hoge of te lage liersnelheid'
+    '13-1':
+      naam: '13.1 Lierstart met zijwind'
+    '14-1':
+      naam: '14.1 Normaal standaardcircuit'
+    '15-1':
+      naam: '15.1 Rechtlijnige vlucht bij zijwind'
+    '16-1':
+      naam: '16.1 Normaal standaardcircuit met zijwind'
+    '17-1':
+      naam: '17.1 Landing'
+    '17-2':
+      naam: '17.2 Landing met zijwind'
+    '17-3':
+      naam: '17.3 Landing met harde wind'
+    '18-1':
+      naam: '18.1 Invoegen'
+    '18-2':
+      naam: '18.2 Positie ten opzichte van andere vliegtuigen handhaven'
+    '18-3':
+      naam: '18.3 Uitvoegen'
+    '18-4':
+      naam: '18.4 Terugkeer naar het veld'
+    '19-1':
+      naam: '19.1 Oefening negatieve G-krachten'
+    '20-1':
+      naam: '20.1 Herkennen en herstel van een symmetrische overtrek'
+    '21-1':
+      naam: '21.1 Herkennen en herstel van een vrille (tolvlucht)'
+    '22-1':
+      naam: '22.1 Herkennen en herstel van een spiraalduik'
+    '23-1':
+      naam: '23.1 Oefening kabelbreuk'
+    '24-1':
+      naam: '24.1 Oefening geimproviseerd circuit'
+    '25-1':
+      naam: '25.1 Normale sleepstart'
+    '25-2':
+      naam: '25.2 Ontkoppelprocedure'
+    '26-1':
+      naam: '26.1 Dalend slepen'
+    '27-1':
+      naam: '27.1 Sleepstart met zijwind (opsturen)'
+    '28-1':
+      naam: '28.1 Eerste solovlucht'
+    '29-1':
+      naam: '29.1 Vliegen volgens EVO standaard'
+    '29-2':
+      naam: '29.2 Langzaam - snel vliegen, overtrek'
+    '29-3':
+      naam: '29.3 Steile wisselbochten'
+    '29-4':
+      naam: '29.4 Tolvlucht - zelfstandig inzetten en herstel'
+    '29-5':
+      naam: '29.5 Spiraalduik - zelfstandig inzetten en herstel'
+    '29-6':
+      naam: '29.6 Veilig thermiekvliegen'
+    '29-7':
+      naam: '29.7 Doellanden'
+    '29-8':
+      naam: '29.8 Doellanden met zijwind'
+    '29-9':
+      naam: '29.9 Slipvlucht en nadering'
+    '29-10':
+      naam: '29.10 Slipvlucht met remkleppen'
+    '29-11':
+      naam: '29.11 Vliegen met afgedekte instrumenten'
+    '29-12':
+      naam: '29.12 MacReady vliegen'
+    '29-13':
+      naam: '29.13 Aangepast (geimproviseerd circuit)'
+    '29-14':
+      naam: '29.14 Overlandcircuit'
+    '29-15':
+      naam: '29.15 Dagelijkse inspectie - boordpapieren'
+    '29-16':
+      naam: '29.16 Gebruik radio'
+    '30-1':
+      naam: '30.1 Dagelijkse inspectie inclusief controle boorddocumenten'
+    '30-2':
+      naam: '30.2 Briefing weersomstandigheden'
+    '30-3':
+      naam: '30.3 Briefing luchtruimbeperkingen - notams'
+    '30-4':
+      naam: '30.4 Vluchtvoorbereiding'
+    '30-5':
+      naam: '30.5 Montage - demontage / aanhangers'
+    '30-6':
+      naam: '30.6 Snelheidspolaire / MacReady / Sollfahrt'
+    '30-7':
+      naam: '30.7 Final glide'
+    '30-8':
+      naam: '30.8 Overlandnavigatie - procedure "weg kwijt"'
+    '30-9':
+      naam: '30.9 Overland veldkeuze'
+    '30-10':
+      naam: '30.10 Procedure buitenlanding'
+    '31-1':
+      naam: '31.1 Overlandvlucht'
 
   status:
     0: 'Diverse'

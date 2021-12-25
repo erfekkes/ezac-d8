@@ -30,9 +30,3 @@ ezac_rooster_invoer:
   route_name: ezac_rooster_table
   base_route: ezac_rooster_overzicht_datum
   weight: 04
-
-ezac_rooster_administratie:
-  title: 'Rooster administratie'
-  route_name: ezac_rooster
-  base_route: ezac_rooster_overzicht_datum
-  weight: 05

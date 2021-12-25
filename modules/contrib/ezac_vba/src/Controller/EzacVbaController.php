@@ -218,6 +218,12 @@ class EzacVbaController extends ControllerBase {
    * @return array
    */
   public function bevoegdheidLid($datum_start, $datum_eind) {
+    // read settings
+    $settings = Drupal::config('ezac_vba.settings');
+
+    //set up bevoegdheden
+    $bevoegdheden = $settings->get('vba.bevoegdheden');
+
     //@todo move to form
     $content = [];
 
@@ -242,11 +248,12 @@ class EzacVbaController extends ControllerBase {
     $rows = [];
     foreach ($bevoegdhedenIndex as $id) {
       $bevoegdheid = new EzacVbaBevoegdheid($id);
+      $bevoegdheid_naam = $bevoegdheden[$bevoegdheid->bevoegdheid]['naam'];
       $rows[] = [
         EzacUtil::showDate($bevoegdheid->datum_aan),
         $leden[$bevoegdheid->afkorting],
         $leden[$bevoegdheid->instructeur],
-        "$bevoegdheid->bevoegdheid - $bevoegdheid->onderdeel",
+        "$bevoegdheid_naam - $bevoegdheid->onderdeel",
       ];
     }
 
