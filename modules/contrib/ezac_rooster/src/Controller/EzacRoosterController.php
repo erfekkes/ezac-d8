@@ -205,8 +205,11 @@ class EzacRoosterController extends ControllerBase {
       '#value' => $diensten,
     );
 
-    // if datum not given, set to rest of current year
-    if (!isset($datum)) $datum = date('Y-m-d:Y-12-31');
+    // if datum not given, set from today to next year
+    if (!isset($datum)) {
+      $datum = date('Y-m-d') .':';
+      $datum .= ((int) date('Y') + 1);
+    }
 
     if ($datum == 'jaar') $datum = date('Y');
 

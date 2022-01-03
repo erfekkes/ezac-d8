@@ -9,6 +9,16 @@ reservering:
     B: 'middag'
     #C: 'avond'
 
+  # dagen die in het rooster worden aangegeven
+  dagen:
+    Monday: 'maandag'
+    Tuesday: 'dinsdag'
+    Wednesday: 'woensdag'
+    Thursday: 'donderdag'
+    Friday: 'vrijdag'
+    Saturday: 'zaterdag'
+    Sunday: 'zondag'
+
   types:
     #types resources
     vliegen: 'vliegen'

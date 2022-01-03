@@ -1,6 +1,6 @@
 ezac_reserveringen:
   title: EZAC Reserveringen voor leden
   route_name: ezac_reserveringen_reservering
-  #route_parameters: { type: '' }
+  route_parameters: { type: 'werken' }
   description: EZAC reservering invoeren
   weight: 05

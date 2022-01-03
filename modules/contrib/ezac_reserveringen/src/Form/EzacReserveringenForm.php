@@ -47,6 +47,7 @@ class EzacReserveringenForm extends FormBase
       $mededeling = $settings->get('reservering.mededeling');
       $periodes = $settings->get('reservering.periodes');
       $types = $settings->get('reservering.types');
+      $dagen = $settings->get('reservering.dagen');
 
       // per resource: naam | capaciteit | aantal
       if ($type != '' && in_array($type, $types)) {
@@ -87,26 +88,19 @@ class EzacReserveringenForm extends FormBase
       $days = array_unique(EzacRooster::index($condition,'datum'));
 
       if (count($days) > 0) {
-        $firstday = substr($days[0], 0, 10);
         foreach ($days as $day) {
           $date_list[substr($day, 0, 10)] = EzacUtil::showDate($day);
-          $lastday = substr($day, 0, 10);
         }
       }
       else {
         //geen rooster dagen gevonden
         $messenger->addMessage('Geen instructie diensten in het rooster gevonden');
-        //zoek volgende vliegdag in volgend weekend
-        $datum = date('Y-m-d',strtotime('Saturday'));
-        $firstday = $datum;
-        $nextday = $datum;
-        $date_list[$datum] = EzacUtil::showDate($datum);
-        if (date('l',strtotime($datum)) == 'Saturday') {
-          $sunday = strtotime('Sunday', strtotime($datum));
-          $nextday = date('Y-m-d', $sunday);
-          $lastday = $nextday;
-          $date_list[$nextday] = EzacUtil::showDate($nextday);
+        //zoek volgende vliegdagen in komende periode van dagen
+        foreach ($dagen as $day => $naam) {
+          $datum = date('Y-m-d',strtotime($day));
+          $date_list[$datum] = EzacUtil::showDate($datum);
         }
+        ksort($date_list);
       }
 
       // bepaal soorten resources
@@ -133,6 +127,8 @@ class EzacReserveringenForm extends FormBase
       }
 
       //lees reserveringen uit ezac_reservering voor $datum
+      $firstday = array_key_first($date_list);
+      $lastday = array_key_last($date_list);
       $condition = [
         'datum' => [
           'value' => [$firstday, $lastday],

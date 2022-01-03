@@ -122,6 +122,7 @@ class EzacVbaLidForm extends FormBase {
     ];
 
     //submit
+    //@todo dit is onnodig - er valt niets te versturen
     $form['vliegers']['submit'] = [
       '#type' => 'submit',
       '#description' => t('Opslaan'),
@@ -261,8 +262,7 @@ class EzacVbaLidForm extends FormBase {
 
       //toon vluchten dit jaar
       $form['vliegers']['starts'] = EzacStartsController::startOverzicht(
-        $datum_start,
-        $datum_eind,
+        "$datum_start:$datum_eind",
         $vlieger_afkorting);
 
       if (!$overzicht) {
