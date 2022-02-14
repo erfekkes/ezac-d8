@@ -107,6 +107,7 @@ class EzacStartsOverzichtForm extends FormBase {
           '#dir' => 'DESC',
         ];
         $dagenIndex = array_unique(EzacStart::index($condition, 'datum',$sortkey));
+        $dagen = [];
         foreach ($dagenIndex as $dag) $dagen[$dag] = EzacUtil::showDate($dag);
         $form['startlijst']['datum'] = [
           '#type' => 'select',
