@@ -25,7 +25,6 @@ texts:
   Meevliegen is alleen mogelijk voor volledig gevaccineerde personen
   of met een negatieve test.
   <p>Het EZAC coronaprotocol kan <a href=https://www.ezac.nl/drupal/sites/default/files/20210822-Protocol-Covid-19-Pax.pdf>HIER</a> worden gedownload.
-  <p>Vooralsnog is ook het gebruik van een mondkapje verplicht.'
   kies_dag: '<p><h2>Kies een dag en tijd</h2>'
   advies: '<p>Elke reservering geldt voor <strong>EEN (1)</strong> persoon
   Indien meerdere personen willen meevliegen, dient voor iedere persoon
@@ -34,7 +33,7 @@ texts:
   Vrouwen wordt geadviseerd om geen lange jurk of korte rok te dragen ivm de veiligheidsgordel en parachute.'
   nog_bevestigen: 'Er is een mail naar u verstuurd om de reservering te bevestigen. Dit moet binnen een uur gebeuren.'
   reservering_geplaatst: 'De reservering is geplaatst.'
-  geen_plaatsen: 'Er zijn helaas geen plaatsen meer beschikbaar'
+  geen_plaatsen: 'Er zijn helaas geen plaatsen beschikbaar'
   verwijder_item: 'Verwijder gemarkeerde item(s)'
   verwijder_reservering: 'Verwijder reservering'
   verwijder_waarschuwing: 'Verwijder de reservering alleen als de passagier is geinformeerd'
