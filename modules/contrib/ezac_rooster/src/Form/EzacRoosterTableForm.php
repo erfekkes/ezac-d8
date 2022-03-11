@@ -34,9 +34,12 @@ class EzacRoosterTableForm extends FormBase
   function buildForm(array $form, FormStateInterface $form_state, $datum = null) {
     //sanitize $datum YYYY-MM-DD
     $datum = substr(htmlspecialchars($datum),0,10);
+    /*
     if (!checkdate(substr($datum,5,2), substr($datum,8,2), substr($datum, 0,4))) {
       unset($datum); //date invalid
     }
+    */
+    if (!strtotime($datum)) unset($datum); // date invalid
 
     // get names of leden
     $condition = [
