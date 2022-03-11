@@ -24,8 +24,8 @@ texts:
   mededeling: '<h1>Vanaf half april kan er weer worden meegevlogen</h1>
   Meevliegen is alleen mogelijk voor volledig gevaccineerde personen
   of met een negatieve test.
-  <p>Het EZAC coronaprotocol kan <a href=https://www.ezac.nl/drupal/sites/default/files/20210822-Protocol-Covid-19-Pax.pdf>HIER</a> worden gedownload.
-  kies_dag: <p><h2>Kies een dag en tijd</h2>'
+  <p>Het EZAC coronaprotocol kan <a href=https://www.ezac.nl/drupal/sites/default/files/20210822-Protocol-Covid-19-Pax.pdf>HIER</a> worden gedownload.'
+  kies_dag: '<p><h2>Kies een dag en tijd</h2>'
   advies: '<p>Elke reservering geldt voor <strong>EEN (1)</strong> persoon
   Indien meerdere personen willen meevliegen, dient voor iedere persoon
   <strong>apart</strong> een reservering te worden gemaakt.
