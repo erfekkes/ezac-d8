@@ -40,7 +40,7 @@ class EzacPassagiersSlotsController extends ControllerBase {
     }
 
     // Opschonen opties die zijn vervallen
-    $limit = date('Y-m-d G:i:s', time() - $optie_tijd);
+    $limit = date('Y-m-d H:i:s', time() - $optie_tijd); // G:i:s veranderd in H:i:s
     $condition = [
       'status' => $parameters['reservering_optie'],
       'aangemaakt' => [
