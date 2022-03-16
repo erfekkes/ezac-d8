@@ -150,7 +150,7 @@ class EzacLedenExportController extends ControllerBase {
 
     // data header for CSV attachment
     $mess = ('"Naam";"Adres";"Postcode";"Plaats";"Land";"Telefoon";"E-mail";"Code";"Geboorteda"' . "\r\n");
-    $mess .= ('"EZAC leden";"' . $selectie . '";"";"' . date("Y-m-d") . '";"";"";"";""' . "\r\n");
+    $mess .= ('"EZAC leden";"' . $selectie . '";"";"' . date("Y-m-d") . '";"";"";"";"";""' . "\r\n");
 
     //execute query
     //echo $query1 .$query2 .$query3;
