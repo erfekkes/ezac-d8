@@ -246,8 +246,8 @@ class EzacPassagiersBoekingForm extends FormBase {
     //$hash = drupal_hash_base64($data);
     $hash = hash('sha256', $data, FALSE);
 
-    $eindtijd = date('G:i', strtotime('+1H')); // 1 uur na nu
-
+    //@todo geen gebruik van settings parameters['optie_tijd'] 3600
+    $eindtijd = date('H:i', strtotime('+1H')); // 1 uur na nu
     $url_bevestiging = Url::fromRoute(
       'ezac_passagiers_bevestiging',
       [
