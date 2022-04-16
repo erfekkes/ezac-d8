@@ -2,7 +2,8 @@ langcode: 'nl'
 
 reservering:
   mededeling: '<h2>Je kunt per periode een reservering doen</h2>
-  De DDT is wegens onderhoud niet meer beschikbaar'
+  Reserveren voor VLIEGEN gebeurt nu via ezac.zweef.app
+  <a href="https://ezac.zweef.app/aanmelden">AANMELDEN vliegdag</a>'
 
   periodes:
     A: 'ochtend'
@@ -21,8 +22,8 @@ reservering:
 
   types:
     #types resources
-    vliegen: 'vliegen'
-    kader: 'kader'
+    #vliegen: 'vliegen'
+    #kader: 'kader'
     werken: 'werken'
 
   resources:
