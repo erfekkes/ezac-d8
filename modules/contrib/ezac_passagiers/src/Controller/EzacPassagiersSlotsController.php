@@ -189,14 +189,6 @@ class EzacPassagiersSlotsController extends ControllerBase {
       $form[1]['#empty'] = t('Geen gegevens beschikbaar');
       $form[1]['#weight'] = 1;
     }
-    else {
-      //geen plaatsen beschikbaar
-      $form[1]['#type'] = 'markup';
-      $form[1]['#markup'] = $texts['geen plaatsen'];
-      $form[1]['#weight'] = 1;
-      $form[1]['#prefix'] = '<div class="ezacpass-intro-div">';
-      $form[1]['#suffix'] = '</div>';
-    }
     // Don't cache this page.
     $form['#cache']['max-age'] = 0;
 
