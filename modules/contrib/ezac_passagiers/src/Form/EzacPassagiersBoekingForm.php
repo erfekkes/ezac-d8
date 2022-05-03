@@ -246,7 +246,7 @@ class EzacPassagiersBoekingForm extends FormBase {
     //$hash = drupal_hash_base64($data);
     $hash = hash('sha256', $data, FALSE);
 
-    //@todo geen gebruik van settings parameters['optie_tijd'] 3600
+    //@todo hier is geen gebruik gemaakt van settings parameters['optie_tijd'] 3600
     $eindtijd = date('H:i', strtotime('+1H')); // 1 uur na nu
     $url_bevestiging = Url::fromRoute(
       'ezac_passagiers_bevestiging',
@@ -257,7 +257,7 @@ class EzacPassagiersBoekingForm extends FormBase {
     )->toString();
 
     $url_verwijderen = Url::fromRoute(
-      'ezac_passagiers_annulering',
+      'ezac_passagiers_annulering_form',
       [
         'id' => $id,
         'hash' => $hash,
@@ -293,11 +293,11 @@ class EzacPassagiersBoekingForm extends FormBase {
 
     //   Mailen van bevestiging
     $headers = [
-      //'From' => "webmaster@ezac.nl",
+      'From' => "webmaster@ezac.nl",
       'Bcc' => "webmaster@ezac.nl",
       //'X-Mailer' => "PHP",
       'Content-Type' => "text/html; charset=iso-8859-1",
-      //'Return-Path' => "webmaster@ezac.nl",
+      'Return-Path' => "webmaster@ezac.nl",
     ];
     $mailed = mail($email, $subject, $body, $headers);
 
