@@ -18,7 +18,7 @@ class EzacPassagiersAnnuleringForm extends FormBase {
   /**
    * @inheritdoc
    */
-  public function getFormId() {
+  public function getFormId(): string {
     return 'ezac_passagiers_annulering_form';
   }
 
@@ -28,11 +28,11 @@ class EzacPassagiersAnnuleringForm extends FormBase {
    * @param array $form
    * @param FormStateInterface $form_state
    * @param int|null $id
-   * @param string $hash
+   * @param string|null $hash
    *
    * @return array
    */
-  public function buildForm(array $form, FormStateInterface $form_state, int $id = NULL, string $hash = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, int $id = NULL, string $hash = NULL): array {
     $messenger = Drupal::messenger();
 
     // Wrap the form in a div.
@@ -69,12 +69,6 @@ class EzacPassagiersAnnuleringForm extends FormBase {
 
     //check mail entered with mail on record in validate
     //when ok proceed to delete option
-
-    $form[0]['#type'] = 'markup';
-    $form[0]['#markup'] = '<p>Verwijderen reservering></p>';
-    $form[0]['#weight'] = 0;
-    $form[0]['#prefix'] = '<div class="ezacpass-intro-div">';
-    $form[0]['#suffix'] = '</div>';
 
     $form[0]['#type'] = 'markup';
     $form[0]['#markup'] = "<p><h2>Reservering $id van $show_datum $tijd verwijderen voor $naam</h2></p>";
