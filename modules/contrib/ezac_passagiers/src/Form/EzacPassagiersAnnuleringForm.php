@@ -172,7 +172,7 @@ class EzacPassagiersAnnuleringForm extends FormBase {
       else {
         $messenger->addMessage("Geen reservering verwijderd", 'status');
       }
-      $form_state->setRedirect('passagiers');
+      $form_state->setRedirect('ezac_passagiers');
     }
   }
 
