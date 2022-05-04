@@ -374,7 +374,7 @@ class EzacLedenUpdateForm extends FormBase
             'json' => [
               'name' => [$lid->user],
               'mail' => [$lid->e_mail],
-              'status' => [1], // active - in order to request password
+              'status' => [0], // blocked - in order to request password
             ],
           ],
         );
@@ -397,11 +397,9 @@ class EzacLedenUpdateForm extends FormBase
         $messenger->addMessage("Drupal user $u aangemaakt voor [$n] met mail adres $m");
 
         //activate user
-        /*
         $user_object = User::load((int) $user->uid);
         $user_object->activate();
         $user_object->save();
-        */
       }
     } // register_user
 
