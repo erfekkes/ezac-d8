@@ -1,9 +1,9 @@
 langcode: 'nl'
 
-base_uri: 'https://www.ezac.nl/ezac'
-user_register: '/entity/user'
-user: '/user'
-CSRF_Token: '/session/token'
+base_uri: 'https://www.ezac.nl'
+user_register: '/ezac/entity/user'
+user: '/ezac/user'
+CSRF_Token: '/ezac/session/token'
 
 auth_params:
   #user: 'devadmin'

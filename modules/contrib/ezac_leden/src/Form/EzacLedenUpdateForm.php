@@ -341,7 +341,6 @@ class EzacLedenUpdateForm extends FormBase
       $CSRF_token = $settings->get('CSRF_Token');
       $auth_params = $settings->get('auth_params');
 
-      $messenger->addMessage("base_uri $base_uri / $CSRF_token");
       // add drupal user for www.ezac.nl
       // get CSRF token
       $client = new Client(['base_uri' => $base_uri]);
@@ -350,6 +349,7 @@ class EzacLedenUpdateForm extends FormBase
       }
       catch (ClientException $e) {
         $messenger->addMessage("Geen CSRF token ontvangen [$e]");
+        return;
       }
       $token = (string) $response->getBody();
 
