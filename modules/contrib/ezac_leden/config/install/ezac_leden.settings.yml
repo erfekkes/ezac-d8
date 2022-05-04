@@ -1,0 +1,12 @@
+langcode: 'nl'
+
+base_uri: 'https://www.ezac.nl'
+user_register: '/entity/user'
+user: '/user'
+CSRF_Token: '/session/token'
+
+auth_params:
+  #user: 'devadmin'
+  #password: '1x_PHP_is_genoeg!'
+  user: 'leden_admin'
+  password: '29J_Hs2_Ksq'
