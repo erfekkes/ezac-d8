@@ -1,6 +1,6 @@
 langcode: 'nl'
 
-base_uri: 'https://www.ezac.nl'
+base_uri: 'https://www.ezac.nl/ezac'
 user_register: '/entity/user'
 user: '/user'
 CSRF_Token: '/session/token'
