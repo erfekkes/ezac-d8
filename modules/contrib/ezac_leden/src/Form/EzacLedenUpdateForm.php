@@ -7,6 +7,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\ezac\Util\EzacUtil;
 use Drupal\ezac_leden\Model\EzacLid;
+use Drupal\user\Entity\User;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 
 /**
  * UI to update leden record
@@ -189,6 +192,7 @@ class EzacLedenUpdateForm extends FormBase
                 $form_state->setErrorByName('afk', t("Afkorting $afkorting bestaat al"));
             }
         }
+        // Code
         if (!array_key_exists($form_state->getValue('code'), EzacLid::$lidCode)) {
             $form_state->setErrorByName('code', t("Ongeldige code"));
         }
@@ -231,10 +235,24 @@ class EzacLedenUpdateForm extends FormBase
         }
         // RTlicense
         // E_mail
+        // check e_mail does not exist yet
+        $e_mail = $form_state->getValue('e_mail');
+        if ($e_mail <> $form['e_mail']['#default_value']) {
+          if (EzacLid::counter(['e_mail' => $e_mail])) {
+            $form_state->setErrorByName('e_mail', t("E-mail adres $e_mail bestaat al"));
+          }
+        }
         // Babyvriend
         // Ledenlijst
         // Etiketje
         // User
+        //  check user code does not exist yet
+        $user = $form_state->getValue('user');
+        if ($user <> $form['user']['#default_value']) {
+          if (EzacLid::counter(['user' => $user])) {
+            $form_state->setErrorByName('user', t("User naam $user bestaat al"));
+          }
+        }
         // seniorlid
         // jeugdlid
         // PEonderhoud
@@ -261,13 +279,13 @@ class EzacLedenUpdateForm extends FormBase
      */
     public function submitForm(array &$form, FormStateInterface $form_state)
     {
-        $messenger = \Drupal::messenger();
+      $messenger = \Drupal::messenger();
 
-        // delete record
+      // delete record
         if ($form_state->getValue('op') == 'Verwijderen') {
-            if (!\Drupal::currentUser()->hasPermission('DLO_delete')) {
+            if (!\Drupal::currentUser()->hasPermission('EZAC_delete')) {
                 $messenger->addMessage('Verwijderen niet toegestaan', $messenger::TYPE_ERROR);
-                return;
+                return [];
             }
             $lid = new EzacLid; // initiate Lid instance
             $lid->id = $form_state->getValue('id');
@@ -290,7 +308,12 @@ class EzacLedenUpdateForm extends FormBase
                 $id = $lid->create(); // add record in database
                 $messenger->addMessage("Leden record aangemaakt met id [$id]", $messenger::TYPE_STATUS);
 
-            } else {
+              // add drupal user for www.ezac.nl
+              if ($lid->user <> '') { // a user code for drupal was entered
+                self::register_user($lid);
+              }
+
+            } else { // existing user record updated
                 $count = $lid->update(); // update record in database
                 $messenger->addMessage("$count record updated", $messenger::TYPE_STATUS);
             }
@@ -301,4 +324,84 @@ class EzacLedenUpdateForm extends FormBase
         );
         $form_state->setRedirectUrl($redirect);
     } //submitForm
+
+  /**
+   * @param \Drupal\ezac_leden\Model\EzacLid $lid
+   *
+   * @return false|void
+   * @throws \GuzzleHttp\Exception\GuzzleException
+   */
+  function register_user(EzacLid $lid) {
+      $messenger = \Drupal::messenger();
+      // read settings
+      $settings = \Drupal::config('ezac_leden.settings');
+      $base_uri = $settings->get('base_uri');
+      $user_register = $settings->get('user_register');
+      $user_patch = $settings->get('user');
+      $CSRF_token = $settings->get('CSRF_Token');
+      $auth_params = $settings->get('auth_params');
+
+      // add drupal user for www.ezac.nl
+      // get CSRF token
+      $client = new Client(['base_uri' => $base_uri]);
+      try {
+        $response = $client->request('GET', $CSRF_token);
+      }
+      catch (ClientException $e) {
+        $messenger->addMessage("Geen CSRF token ontvangen [$e]");
+      }
+      $token = (string) $response->getBody();
+
+      // register user
+      try {
+        $response = $client->request(
+          'POST',
+          $user_register,
+          [
+            'auth' => [
+              $auth_params['user'],
+              $auth_params['password'],
+            ],
+            'headers' => [
+              'Content-Type' => 'application/json',
+              'Accept' => 'application/json',
+              'X-CSRF_Token' => $token,
+            ],
+            'form_params' => [
+              '_format' => 'hal_json',
+            ],
+            'json' => [
+              'name' => [$lid->user],
+              'mail' => [$lid->e_mail],
+              'status' => [1], // active - in order to request password
+            ],
+          ],
+        );
+        $data = (string) $response->getBody();
+      }
+      catch (ClientException $e) {
+        $messenger->addError("Register user $lid->user fout");
+        return;
+      }
+
+      $statusCode = $response->getStatusCode();
+      if ($statusCode <> '201') { // HTTP fout ontvangen
+        $messenger->addError("Fout $statusCode bij registratie drupal user");
+      }
+      else { // goede HTTP response ontvangen
+        $user = json_decode($data);
+        $u = $user->uid[0]->value;
+        $n = $user->name[0]->value;
+        $m = $user->mail[0]->value;
+        $messenger->addMessage("Drupal user $u aangemaakt voor [$n] met mail adres $m");
+
+        //activate user
+        /*
+        $user_object = User::load((int) $user->uid);
+        $user_object->activate();
+        $user_object->save();
+        */
+      }
+    } // register_user
+
 }
