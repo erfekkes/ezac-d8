@@ -397,7 +397,7 @@ class EzacLedenUpdateForm extends FormBase
         $messenger->addMessage("Drupal user $u aangemaakt voor [$n] met mail adres $m");
 
         //activate user
-        $user_object = User::load((int) $user->uid);
+        $user_object = User::load((int) $u);
         $user_object->activate();
         $user_object->save();
       }
