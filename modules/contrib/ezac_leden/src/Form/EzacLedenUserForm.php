@@ -280,7 +280,7 @@ class EzacLedenUserForm extends FormBase {
     // perform validate for edit of record
     // E_mail
     // check e_mail does not exist yet
-    $e_mail = $form_state->getValue('e_mail');
+    $e_mail = $form_state->getValue('data')['e_mail]'];
     if ($e_mail <> $form['data']['e_mail']['#default_value']) {
       if (EzacLid::counter(['e_mail' => $e_mail])) {
         $form_state->setErrorByName('e_mail', t("E-mail adres $e_mail bestaat al"));
