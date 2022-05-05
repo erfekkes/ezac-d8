@@ -225,61 +225,6 @@ class EzacLedenUserForm extends FormBase {
       '#value' => $lid->id,
     ];
 
-    // select user-updatable bevoegdheden
-    // read settings
-    $settings = Drupal::config('ezac_vba.settings');
-
-    //set up bevoegdheden
-    $bevoegdheden = $settings->get('vba.bevoegdheden');
-    $form['bevoegdheden'] = [
-      '#type' => 'value',
-      '#value' => $bevoegdheden,
-    ];
-
-    foreach ($bevoegdheden as $bevoegdheid => $onderdeel) {
-      if ($onderdeel['vervalt'] == true) {
-        // deze bevoegdheid heeft een vervaldatum
-        $vervalt_list[] = $bevoegdheid;
-      }
-    }
-
-    $condition = [
-      'afkorting' => $lid->afkorting,
-      'bevoegdheid' => [
-        'value' => $vervalt_list,
-        'operator' => 'IN',
-      ],
-    ];
-    $bevoegdhedenIndex = EzacVbaBevoegdheid::index($condition);
-    $bv_list = [];
-
-    foreach ($bevoegdhedenIndex as $id) {
-      $bl = new EzacVbaBevoegdheid($id);
-      $bv_list[$id] = $bl->bevoegdheid;
-      $form['data']['bevoegdheid'][$bl->bevoegdheid] = [
-        '#type' => 'container',
-        '#tree' => true,
-      ];
-      $form['data']['bevoegdheid'][$bl->bevoegdheid]['datum_aan'] = [
-        '#type' => 'date',
-        '#title' => t("$bl->bevoegdheid geldig vanaf"),
-        '#default_value' => $bl->datum_aan,
-        //'#value' => $bl->datum_aan,
-      ];
-      $form['data']['bevoegdheid'][$bl->bevoegdheid]['datum_uit'] = [
-        '#type' => 'date',
-        '#title' => t("$bl->bevoegdheid geldig tot"),
-        '#default_value' => $bl->datum_uit,
-        //'#value' => $bl->datum_uit,
-      ];
-    }
-
-    // store bv_list for validate and submit processing
-    $form['bv_list'] = [
-      '#type' => 'value',
-      '#value' => $bv_list,
-    ];
-
     $form['actions'] = [
       '#type' => 'actions',
     ];
@@ -333,22 +278,15 @@ class EzacLedenUserForm extends FormBase {
   public function validateForm(array &$form, FormStateInterface $form_state) {
 
     // perform validate for edit of record
-    $bv_list = $form_state->getValue('bv_list');
-    foreach ($bv_list as $bevoegdheid) {
-      $bev = $form_state->getValue('data')['bevoegdheid'][$bevoegdheid];
-      $dat = $bev['datum_aan'];
-      if ($dat != '') {
-        $lv = explode('-', $dat);
-        if (checkdate($lv[1], $lv[2], $lv[0]) == FALSE) { // month, day, year
-          $form_state->setErrorByName($bevoegdheid, "Datum geldig vanaf voor $bevoegdheid is onjuist");
-        }
+    // E_mail
+    // check e_mail does not exist yet
+    $e_mail = $form_state->getValue('e_mail');
+    if ($e_mail <> $form['data']['e_mail']['#default_value']) {
+      if (EzacLid::counter(['e_mail' => $e_mail])) {
+        $form_state->setErrorByName('e_mail', t("E-mail adres $e_mail bestaat al"));
       }
-      $dat = $bev['datum_uit'];
-      if ($dat != '') {
-        $lv = explode('-', $dat);
-        if (checkdate($lv[1], $lv[2], $lv[0]) == FALSE) {
-          $form_state->setErrorByName($bevoegdheid, "Datum geldig tot voor $bevoegdheid is onjuist");
-        }
+      if (user_load_by_mail($e_mail) != false) {
+        $form_state->setErrorByName('e_mail', t("E-mail adres $e_mail is al in gebruik"));
       }
     }
   }
@@ -391,28 +329,19 @@ class EzacLedenUserForm extends FormBase {
     if ($updated) {
       $count = $lid->update(); // update record in database
       $messenger->addMessage("$count record updated", $messenger::TYPE_STATUS);
+      //check for changed mail address and update drupal user record
+      $user = user_load_by_name($lid->user);
+      if ($user != false) {
+        // user record exists in drupal
+        if ($user->getEmail != $lid->e_mail) {
+          // mail address changed, adapt in drupal user
+          $messenger->addStatus("Drupal user $user->getEmail gewijzigd in $lid->e_mail ");
+          $user->setEmail($lid->e_mail);
+          $user->save();
+        }
+      }
     }
 
-    // aanpassen bevoegdheden
-    $bv_list = $form_state->getValue('bv_list');
-    foreach ($bv_list as $id => $bevoegdheid) {
-      $field = $data['bevoegdheid'][$bevoegdheid];
-      $updated = false;
-      if ($field['datum_aan'] != $form['data']['bevoegdheid'][$bevoegdheid]['datum_aan']['#default_value']) {
-        $bv = new EzacVbaBevoegdheid($id);
-        $bv->datum_aan = ($field['datum_aan'] != '') ? $field['datum_aan'] : NULL;
-        $updated = true;
-      }
-      if ($field['datum_uit'] != $form['data']['bevoegdheid'][$bevoegdheid]['datum_uit']['#default_value']) {
-        $bv = new EzacVbaBevoegdheid($id);
-        $bv->datum_uit = ($field['datum_uit'] != '') ? $field['datum_uit'] : NULL;
-        $updated = true;
-      }
-      if ($updated) {
-        $count = $bv->update();
-        $messenger->addMessage("$count bevoegdheid $bevoegdheid bijgewerkt", 'status');
-      }
-    }
 
     //go back to leden overzicht
     $redirect = Url::fromRoute(
