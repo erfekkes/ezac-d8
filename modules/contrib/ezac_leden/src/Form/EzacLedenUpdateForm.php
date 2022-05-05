@@ -241,19 +241,27 @@ class EzacLedenUpdateForm extends FormBase
           if (EzacLid::counter(['e_mail' => $e_mail])) {
             $form_state->setErrorByName('e_mail', t("E-mail adres $e_mail bestaat al"));
           }
+          if (user_load_by_mail($e_mail) != false) {
+            $form_state->setErrorByName('e_mail', t("E-mail adres $e_mail is al in gebruik"));
+          }
         }
         // Babyvriend
         // Ledenlijst
         // Etiketje
         // User
-        //  check user code does not exist yet
+        //  check user code does not exist yet in leden
         $user = $form_state->getValue('user');
         if ($user <> $form['user']['#default_value']) {
           if (EzacLid::counter(['user' => $user])) {
             $form_state->setErrorByName('user', t("User naam $user bestaat al"));
           }
+          // check duplicate drupal user name
+          if (user_load_by_name($user) != false) {
+            $form_state->setErrorByName('user', t("User naam $user bestaat al"));
+          }
         }
-        // seniorlid
+
+      // seniorlid
         // jeugdlid
         // PEonderhoud
         // Slotcode
@@ -310,12 +318,32 @@ class EzacLedenUpdateForm extends FormBase
 
               // add drupal user for www.ezac.nl
               if ($lid->user <> '') { // a user code for drupal was entered
-                self::register_user($lid);
+                $user = User::create([
+                  'name' => $lid->user,
+                  'mail' => $lid->e_mail,
+                ]);
+                $uid = $user->save();
+                $messenger->addMessage("Drupal user $uid aangemaakt voor [$lid->user] met mail adres $lid->e_mail");
+
+                // now activate the user
+                $user->activate();
+                $user->save();
               }
 
             } else { // existing user record updated
                 $count = $lid->update(); // update record in database
                 $messenger->addMessage("$count record updated", $messenger::TYPE_STATUS);
+                //check for changed mail address and update drupal user record
+                $user = user_load_by_name($lid->user);
+                if ($user != false) {
+                  // user record exists in drupal
+                  if ($user->getEmail != $lid->e_mail) {
+                    // mail address changed, adapt in drupal user
+                    $messenger->addStatus("Drupal user $user->getEmail gewijzigd in $lid->e_mail ");
+                    $user->setEmail($lid->e_mail);
+                    $user->save();
+                  }
+                }
             }
         }
         //go back to leden overzicht
@@ -324,83 +352,5 @@ class EzacLedenUpdateForm extends FormBase
         );
         $form_state->setRedirectUrl($redirect);
     } //submitForm
-
-  /**
-   * @param \Drupal\ezac_leden\Model\EzacLid $lid
-   *
-   * @return false|void
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   */
-  function register_user(EzacLid $lid) {
-      $messenger = \Drupal::messenger();
-      // read settings
-      $settings = \Drupal::config('ezac_leden.settings');
-      $base_uri = $settings->get('base_uri');
-      $user_register = $settings->get('user_register');
-      $user_patch = $settings->get('user');
-      $CSRF_token = $settings->get('CSRF_Token');
-      $auth_params = $settings->get('auth_params');
-
-      // add drupal user for www.ezac.nl
-      // get CSRF token
-      $client = new Client(['base_uri' => $base_uri]);
-      try {
-        $response = $client->request('GET', $CSRF_token);
-      }
-      catch (ClientException $e) {
-        $messenger->addMessage("Geen CSRF token ontvangen [$e]");
-        return;
-      }
-      $token = (string) $response->getBody();
-
-      // register user
-      try {
-        $response = $client->request(
-          'POST',
-          $user_register,
-          [
-            'auth' => [
-              $auth_params['user'],
-              $auth_params['password'],
-            ],
-            'headers' => [
-              'Content-Type' => 'application/json',
-              'Accept' => 'application/json',
-              'X-CSRF_Token' => $token,
-            ],
-            'form_params' => [
-              '_format' => 'hal_json',
-            ],
-            'json' => [
-              'name' => [$lid->user],
-              'mail' => [$lid->e_mail],
-              'status' => [0], // blocked - in order to request password
-            ],
-          ],
-        );
-        $data = (string) $response->getBody();
-      }
-      catch (ClientException $e) {
-        $messenger->addError("Register user $lid->user fout");
-        return;
-      }
-
-      $statusCode = $response->getStatusCode();
-      if ($statusCode <> '201') { // HTTP fout ontvangen
-        $messenger->addError("Fout $statusCode bij registratie drupal user");
-      }
-      else { // goede HTTP response ontvangen
-        $user = json_decode($data);
-        $u = $user->uid[0]->value;
-        $n = $user->name[0]->value;
-        $m = $user->mail[0]->value;
-        $messenger->addMessage("Drupal user $u aangemaakt voor [$n] met mail adres $m");
-
-        //activate user
-        $user_object = User::load((int) $u);
-        $user_object->activate();
-        $user_object->save();
-      }
-    } // register_user
 
 }
