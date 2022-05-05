@@ -285,8 +285,10 @@ class EzacLedenUserForm extends FormBase {
       if (EzacLid::counter(['e_mail' => $e_mail])) {
         $form_state->setErrorByName('e_mail', t("E-mail adres $e_mail bestaat al"));
       }
-      if (user_load_by_mail($e_mail) != false) {
-        $form_state->setErrorByName('e_mail', t("E-mail adres $e_mail is al in gebruik"));
+      if ($e_mail != '') {
+        if (user_load_by_mail($e_mail) != false) {
+          $form_state->setErrorByName('e_mail', t("E-mail adres $e_mail is al in gebruik"));
+        }
       }
     }
   }
